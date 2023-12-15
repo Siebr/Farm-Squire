@@ -713,22 +713,21 @@ def rm_grasses(feed_sources):
 
 def under_grass(feed_use, grasses, amount):
     """
-    
+    Calculate grass that can be fed before pasture/barn ratio exceeds.
 
     Parameters
     ----------
-    feed_use : TYPE
-        DESCRIPTION.
-    grasses : TYPE
-        DESCRIPTION.
-    amount : TYPE
-        DESCRIPTION.
+    feed_use : pd.Series
+        Contains the kg amount determined for feed for each crop.
+    grasses : list
+        Names of those crops which can be considered grasses..
+    amount : float
+        amount of crop/grass wanting to be fed.
 
     Returns
     -------
-    amount : TYPE
-        DESCRIPTION.
-
+    amount : float
+        amount of crop/grass to be fed after limit is applied
     """
     max_grass = (sum(feed_use) + amount) * (173 / 365)
     grass_yield = sum(feed_use[grasses]) + amount

@@ -28,12 +28,13 @@ def apply_slaughter_yield(animal_label):
     diet_engergy = gd.estate_values['meat_diet_energy_content']
     diet_protein = gd.estate_values['meat_diet_protein_content']
     diet_fat = gd.estate_values['meat_diet_fat_content']
-    gd.results['revenue'].iloc[gd.year - 1] += meat_yield * meat_value
-    gd.results['food_energy_produced'].iloc[gd.year - 1] += meat_yield *\
+    gd.results['revenue'].loc[f'year_{gd.year}'] += meat_yield * meat_value
+    gd.results['food_energy_produced'].loc[f'year_{gd.year}'] += meat_yield *\
         diet_engergy
-    gd.results['food_protein_produced'].iloc[gd.year - 1] += meat_yield *\
+    gd.results['food_protein_produced'].loc[f'year_{gd.year}'] += meat_yield *\
         diet_protein
-    gd.results['food_fat_produced'].iloc[gd.year - 1] += meat_yield * diet_fat
+    gd.results['food_fat_produced'].loc[f'year_{gd.year}'] += meat_yield *\
+        diet_fat
     return
 
 def age_herd(animals_on_farm):
@@ -161,7 +162,7 @@ def reduce_animal(animals_on_farm):
         gd.estate_values['female_ratio']
     ratio_current = sum(all_males[1:]) / fertile_female_amount
     label = 'male_0_year'
-    if ratio_current > ratio_want:
+    if ratio_current > ratio_want and animals_on_farm[label] > 0:
         animals_on_farm[label] -= 1
         apply_slaughter_yield(label)
         return

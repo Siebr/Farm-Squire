@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import re
 
+# read input files
 if len(argv) > 1:
     estate_filename = argv[1]
 else:
@@ -30,6 +31,7 @@ plant_data = pd.read_excel(plant_filename, index_col= 0)
 animal_data = pd.read_excel(animal_filename, index_col= 0)
 biodigestor_data = pd.read_excel(biodigestor_filename, index_col= 0)
 
+# format input files for internal use
 estate_units = estate_data['unit_of_measurement']
 estate_values = estate_data['amount']
 
@@ -58,6 +60,7 @@ biodigestor_units = biodigestor_data['unit_of_measurement']
 biodigestor_data.pop('unit_of_measurement')
 biodigestor_data = biodigestor_data.T
 
+# calculate yearly harvest yield
 grassland_ratio_total = sum(plant_data['grassland_ratio'])
 cropping_ratio_total = sum(plant_data['cropping_ratio'])
 
@@ -74,8 +77,11 @@ cropping_yields = (plant_data['cropping_ratio'] *
                    plant_data['yield_DM'])
 
 harvest_yield = np.floor(grassland_yields + cropping_yields)
+
+# split initial herd from data
 animals_on_farm = animal_data.pop('initial_animal_count')
 
+# divide animal types in male, castrated and female
 categories = ' '.join(animals_on_farm.index)
 castrated_labs = re.findall(r'(?: |^)(male_castrated_\d+_year)', categories)
 male_labs = re.findall(r'(?: |^)(male_\d+_year)', categories)
@@ -87,13 +93,20 @@ castrated_labs.sort(reverse= True, key=sort_by_num)
 male_labs.sort(reverse= True, key=sort_by_num)
 female_labs.sort(reverse= True, key=sort_by_num)
 
+# calculate livestock units the farm can support
 grass_size = estate_values['cultivated_grasslands']
 grass_sr = estate_values['stocking_rate_grasslands']
 meadow_size = estate_values['dry_meadow/field']
 meadow_sr = estate_values['stocking_rate_meadow']
 livestock_units_max = grass_size * grass_sr + meadow_size * meadow_sr
 
+# initialize result dataframes
 year = 1
-col_names = ['revenue','food_energy_produced','food_protein_produced',\
-             'food_fat_produced']
-results = pd.DataFrame(0.0 ,columns= col_names, index= [f'year_{year}'])
+result_init = {'revenue': '€','food_energy_produced': 'Kcal',
+               'food_protein_produced' : 'gr/Kg', 'food_fat_produced': 'gr/Kg'}
+results = pd.DataFrame(result_init, index= ['unit'])
+new_row = pd.Series(0.0, index= results.columns, name= f'year_{year}')
+results = pd.concat([results, new_row.to_frame().T], copy= False)
+
+animals_on_farm.rename('year_1', inplace= True)
+herd_results = animals_on_farm.copy().to_frame().T
