@@ -3,10 +3,10 @@ Author: Siebrant Hendriks.
 
 Supplementary script for feeding animals
 """
+import re
 import pandas as pd
 import global_data as gd
 import animal_lifecycle_functions as al
-import re
 import numpy as np
 
 
@@ -444,7 +444,6 @@ def determine_feeding_groups(feed_needs, harvest_stores):
     return groups_considered
 
 
-
 def find_best_prot_yielder(source_data):
     """
     Find crop that yields the most protein per Kg present in source data.
@@ -460,8 +459,8 @@ def find_best_prot_yielder(source_data):
         The name of the available crop yielding the most protein.
     """
     protein_rank = source_data['feed_protein_content']
-    #protein_rank /= source_data['feed_energy_content']
-    best_rank = protein_rank.nlargest(n = 1)
+#    protein_rank /= source_data['feed_energy_content']
+    best_rank = protein_rank.nlargest(n=1)
     best = best_rank.index[0]
     return best
 
@@ -481,8 +480,8 @@ def find_best_energy_yielder(source_data):
         The name of the available crop yielding the most energy.
     """
     energy_rank = source_data['feed_energy_content']
-    #energy_rank /= source_data['feed_protein_content']
-    best_rank = energy_rank.nlargest(n = 1)
+#   energy_rank /= source_data['feed_protein_content']
+    best_rank = energy_rank.nlargest(n=1)
     best = best_rank.index[0]
     return best
 
@@ -513,7 +512,7 @@ def find_best_dm_yielder(source_data, kg_need_for_prot, kg_need_for_energy):
     elif kg_need_for_energy > kg_need_for_prot:
         use_rank = protein_rank
     best = use_rank
-    best = best.nsmallest(n = 1)
+    best = best.nsmallest(n=1)
     best = best.index[0]
     return best
 
@@ -613,7 +612,7 @@ def find_kg_need_for_energy(e_lab, e_yld, source_data, feed_needs_remain,
     energy_yield = 0.0
     kg_needed = 0.0
     while energy_yield < feed_needs_remain['energy']:
-        energy_yield += harvest_stores[e_lab] * e_yld 
+        energy_yield += harvest_stores[e_lab] * e_yld
         kg_needed += harvest_stores[e_lab]
         if energy_yield < feed_needs_remain['energy']:
             source_data_popped = source_data.drop(e_lab)
@@ -691,6 +690,7 @@ def get_grasses(feed_sources):
             grasses.append(crop)
     return grasses
 
+
 def rm_grasses(feed_sources):
     """
     Make a list of feed sources where grasses are removed.
@@ -710,6 +710,7 @@ def rm_grasses(feed_sources):
         pos = feed_sources.index(grass)
         feed_sources.pop(pos)
     return feed_sources
+
 
 def under_grass(feed_use, grasses, amount):
     """
@@ -743,6 +744,7 @@ def under_grass(feed_use, grasses, amount):
             break
     return amount
 
+
 def find_feed_optim(harvest_stores, feed_needs, feed_limits,
                     feeding_groups_used):
     """
@@ -768,7 +770,7 @@ def find_feed_optim(harvest_stores, feed_needs, feed_limits,
         Contains the kg amount determined for feed for each crop.
     """
     harvest_stores = harvest_stores.copy()
-    feed_use = pd.Series(0.0, index= harvest_stores.index)
+    feed_use = pd.Series(0.0, index=harvest_stores.index)
     feed_sources = mk_feeds_to_use(feeding_groups_used, harvest_stores)
     feed_sources = rm_grasses(feed_sources)
     source_data = gd.plant_data.loc[feed_sources]
@@ -833,13 +835,13 @@ def feed_animals(harvest_stores, animals_on_farm):
     while feeding_groups_used == 0:
         al.reduce_animal(animals_on_farm)
         feed_needs = mk_feed_needs(animals_on_farm)
-        feeding_groups_used = determine_feeding_groups(feed_needs,\
+        feeding_groups_used = determine_feeding_groups(feed_needs,
                                                        harvest_stores)
     feed_limits = mk_feed_limits(animals_on_farm)
-    feed_use = pd.Series(0.0, index = harvest_stores.index)
+    feed_use = pd.Series(0.0, index=harvest_stores.index)
 
     while sum(feed_use) == 0 and\
-        feeding_groups_used <= max(gd.plant_data['feeding_priority']):
+            feeding_groups_used <= max(gd.plant_data['feeding_priority']):
         harvest_stores_temp = harvest_stores.copy()
         feed_limits_temp = feed_limits.copy()
         feed_needs_temp = feed_needs.copy()
@@ -849,13 +851,13 @@ def feed_animals(harvest_stores, animals_on_farm):
         feeding_groups_used += 1
     feeding_groups_used -= 1
     while sum(feed_use) == 0 and sum(animals_on_farm) > 62:
-        al.reduce_animal(animals_on_farm) # maybe base on overfeeding (feed_limit_remain)?
+        al.reduce_animal(animals_on_farm)  # maybe base on overfeeding (feed_limit_remain)?
         feed_needs = mk_feed_needs(animals_on_farm)
         feed_limits = mk_feed_limits(animals_on_farm)
         harvest_stores_temp = harvest_stores.copy()
         feed_use, feed_limits_remain =\
             find_feed_optim(harvest_stores_temp, feed_needs, feed_limits,
                             feeding_groups_used)
-    if sum(feed_use) == 0:    
+    if sum(feed_use) == 0:
         print('could not meet herd diet restraints')
     return feed_use

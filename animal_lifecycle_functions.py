@@ -3,11 +3,12 @@ Author: Siebrant Hendriks.
 
 Supplementary script for slaughtering animals
 """
-import global_data as gd
 from random import random
 from random import seed
 import numpy as np
-seed('squire') # this hopefully will give consistent results on retries
+import global_data as gd
+seed('squire')  # this hopefully will give consistent results on retries
+
 
 def apply_slaughter_yield(animal_label):
     """
@@ -16,7 +17,7 @@ def apply_slaughter_yield(animal_label):
     Parameters
     ----------
     animal_label : str
-        Name of the group/type the animal being slaughtered belongs to. 
+        Name of the group/type the animal being slaughtered belongs to.
 
     Returns
     -------
@@ -35,11 +36,11 @@ def apply_slaughter_yield(animal_label):
         diet_protein
     gd.results['food_fat_produced'].loc[f'year_{gd.year}'] += meat_yield *\
         diet_fat
-    return
+
 
 def age_herd(animals_on_farm):
     """
-    Age the herd by one year; slaughter expired and introduce newborns
+    Age the herd by one year; slaughter expired and introduce newborns.
 
     Parameters
     ----------
@@ -62,7 +63,7 @@ def age_herd(animals_on_farm):
         else:
             label = gd.castrated_labs[pos - 1]
             animals_on_farm[label] = amount
-    
+
     for pos, label in enumerate(gd.female_labs):
         fert = gd.animal_data['fertility_rate'].loc[label]
         decider_1 = random()
@@ -103,7 +104,7 @@ def age_herd(animals_on_farm):
 
     male_ratio = gd.estate_values['female_ratio'] /\
         gd.estate_values['male_ratio']
-        
+
     male_limit = sum(animals_on_farm[gd.female_labs[:-1]]) / male_ratio
     males_present = sum(animals_on_farm[gd.male_labs[:-1]])
     while males_present > male_limit:
@@ -122,7 +123,7 @@ def age_herd(animals_on_farm):
     animals_on_farm['male_castrated_1_year'] = int(males_to_castrate)
     animals_on_farm['male_0_year'] = int(newborn_male)
     animals_on_farm['female_0_year'] = int(newborn_female)
-    return
+
 
 def reduce_animal(animals_on_farm):
     """
@@ -143,22 +144,22 @@ def reduce_animal(animals_on_farm):
     fertile_males = gd.animal_data['fertility_rate'].loc[gd.male_labs] > 0
     fertile_males = all_males[fertile_males]
     fertile_male_amount = sum(fertile_males)
-    
+
     all_females = animals_on_farm[gd.female_labs]
     fertile_females = gd.animal_data['fertility_rate'].loc[gd.female_labs] > 0
     fertile_females = all_females[fertile_females]
     fertility_rates = gd.animal_data['fertility_rate']\
         .loc[fertile_females.index]
     fertile_female_amount = sum(fertile_females * fertility_rates)
-    
-    newborn_amount = sum(animals_on_farm[['male_0_year','female_0_year']])
-    
+
+    newborn_amount = sum(animals_on_farm[['male_0_year', 'female_0_year']])
+
     for label in gd.castrated_labs:
         if animals_on_farm[label] > 0:
             animals_on_farm[label] -= 1
             apply_slaughter_yield(label)
             return
-    ratio_want = gd.estate_values['male_ratio']/\
+    ratio_want = gd.estate_values['male_ratio'] /\
         gd.estate_values['female_ratio']
     ratio_current = sum(all_males[1:]) / fertile_female_amount
     label = 'male_0_year'
@@ -166,7 +167,7 @@ def reduce_animal(animals_on_farm):
         animals_on_farm[label] -= 1
         apply_slaughter_yield(label)
         return
-    
+
     ratio_current = fertile_male_amount / fertile_female_amount
     if ratio_current > ratio_want:
         for label in fertile_males.index:
@@ -184,8 +185,8 @@ def reduce_animal(animals_on_farm):
                 apply_slaughter_yield(label)
                 return
     label = 'female_0_year'
-    if animals_on_farm [label] > 0:
-        animals_on_farm [label] -= 1
+    if animals_on_farm[label] > 0:
+        animals_on_farm[label] -= 1
         apply_slaughter_yield(label)
         return
     print('cannot reduce herd further')
