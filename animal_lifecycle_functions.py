@@ -21,7 +21,8 @@ def apply_slaughter_yield(animal_label):
 
     Returns
     -------
-    None.
+    None;
+    Yields get added to global variables.
 
     """
     meat_yield = gd.animal_data['slaughter_meat_yield'].loc[animal_label]
@@ -50,7 +51,8 @@ def age_herd(animals_on_farm):
 
     Returns
     -------
-    None.
+    None;
+    Passed variable gets altered in place.
 
     """
     newborn_male = 0
@@ -137,7 +139,8 @@ def reduce_animal(animals_on_farm):
 
     Returns
     -------
-    None.
+    None;
+    Passed variables gets altered in place.
 
     """
     all_males = animals_on_farm[gd.male_labs]

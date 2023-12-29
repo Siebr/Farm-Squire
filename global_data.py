@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 
+print('startup, please wait...')
 # read input files
 if len(argv) > 1:
     estate_filename = argv[1]
@@ -79,6 +80,13 @@ cropping_yields = (plant_data['cropping_ratio'] *
 
 harvest_yield = np.floor(grassland_yields + cropping_yields)
 
+# calculate yearly phosphorus and nitrogen needed to fertilize crops
+p_use = 0.0
+n_use = 0.0
+for label, amount in harvest_yield.items():
+    p_use += plant_data['P_content'].loc[label] * amount
+    n_use += plant_data['N_content'].loc[label] * amount
+
 # split initial herd from data
 animals_on_farm = animal_data.pop('initial_animal_count')
 
@@ -104,10 +112,25 @@ livestock_units_max = grass_size * grass_sr + meadow_size * meadow_sr
 # initialize result dataframes
 year = 1
 result_init = {'revenue': '€', 'food_energy_produced': 'Kcal',
-               'food_protein_produced': 'gr/Kg', 'food_fat_produced': 'gr/Kg'}
+               'food_protein_produced': 'gr/Kg', 'food_fat_produced': 'gr/Kg',
+               'electricity_balance': 'MJ', 'digestate_produced': 'Kg',
+               'biomethane_produced': 'g_CH4', 'phosphorus_balance': 'g_P',
+               'nitrogen_balance': 'g_N'}
 results = pd.DataFrame(result_init, index=['unit'])
 new_row = pd.Series(0.0, index=results.columns, name=f'year_{year}')
 results = pd.concat([results, new_row.to_frame().T], copy=False)
 
 animals_on_farm.rename('year_1', inplace=True)
 herd_results = animals_on_farm.copy().to_frame().T
+
+fertile_molecules = pd.Series(0.0, index=['phosphorus', 'nitrogen'])
+print('startup complete')
+
+
+if __name__ == '__main__':
+    print('This is only a supplementary script to "farm_squire.py".')
+    print('This script takes the input files supplied by the command line'+
+          ' and reads those in.')
+    print(f'The current files used are: {estate_filename}, {plant_filename}, '+
+          f'{animal_filename}, {biodigestor_filename}')
+
