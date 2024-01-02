@@ -111,7 +111,8 @@ livestock_units_max = grass_size * grass_sr + meadow_size * meadow_sr
 
 # initialize result dataframes
 year = 1
-result_init = {'revenue': '€', 'food_energy_produced': 'Kcal',
+result_init = {'revenue_balance_animal': '€', 'revenue_balance_crops': '€',
+               'food_energy_produced': 'Kcal',
                'food_protein_produced': 'gr/Kg', 'food_fat_produced': 'gr/Kg',
                'electricity_balance': 'MJ', 'digestate_produced': 'Kg',
                'biomethane_produced': 'g_CH4', 'phosphorus_balance': 'g_P',

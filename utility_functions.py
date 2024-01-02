@@ -152,4 +152,24 @@ def report_and_wipe_fm():
     gd.results['nitrogen_balance'].loc[f'year_{gd.year}'] =\
         gd.fertile_molecules['nitrogen']
     gd.fertile_molecules['nitrogen'] = 0.0
-    
+
+
+
+def select_cash_crops(harvest_stores):
+    cash_crops = harvest_stores.where(gd.plant_data['sale_use'] == True)
+    cash_crops = harvest_stores.where(cash_crops > 0)
+    cash_crops.dropna(inplace=True)
+    return cash_crops
+
+
+def apply_cash_crop_yield(cash_crops):
+    for label, amount in cash_crops.items():
+        revenue = gd.plant_data['sale_value'].loc[label] * amount
+        Kcal = gd.plant_data['food_energy_content'].loc[label] * amount
+        fat = gd.plant_data['food_fat_content'].loc[label] * amount
+        prot = gd.plant_data['food_protein_content'].loc[label] * amount
+        gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] += revenue
+        gd.results['food_energy_produced'].loc[f'year_{gd.year}'] += Kcal
+        gd.results['food_fat_produced'].loc[f'year_{gd.year}'] += fat
+        gd.results['food_protein_produced'].loc[f'year_{gd.year}'] += prot
+        return
