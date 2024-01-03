@@ -172,3 +172,9 @@ def apply_cash_crop_yield(cash_crops):
         gd.results['food_fat_produced'].loc[f'year_{gd.year}'] += fat
         gd.results['food_protein_produced'].loc[f'year_{gd.year}'] += prot
     return
+
+
+def apply_crop_subsidies(harvest_stores):
+    for label, amount in harvest_stores.items():
+        subsidy = gd.plant_data['subsidies'].loc[label] * amount
+        gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] += subsidy
