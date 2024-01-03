@@ -80,6 +80,14 @@ cropping_yields = (plant_data['cropping_ratio'] *
 
 harvest_yield = np.floor(grassland_yields + cropping_yields)
 
+# calculate crop subsidies
+grassland_ha = plant_data['grassland_ratio'] *\
+    estate_values['cultivated_grasslands']
+cropping_ha = plant_data['cropping_ratio'] *\
+    estate_values['cropping_area']
+harvest_ha = grassland_ha + cropping_ha
+subsidy = sum(plant_data['subsidies'] * harvest_ha)
+
 # calculate yearly phosphorus and nitrogen needed to fertilize crops
 p_use = 0.0
 n_use = 0.0
@@ -116,7 +124,9 @@ result_init = {'revenue_balance_animal': '€', 'revenue_balance_crops': '€',
                'food_protein_produced': 'gr/Kg', 'food_fat_produced': 'gr/Kg',
                'electricity_balance': 'MJ', 'digestate_produced': 'Kg',
                'biomethane_produced': 'g_CH4', 'phosphorus_balance': 'g_P',
-               'nitrogen_balance': 'g_N'}
+               'nitrogen_balance': 'g_N',
+               'digestion_methane_emissions': 'g_CH4',
+               'manure_methane_emissions': 'g_CH4'}
 results = pd.DataFrame(result_init, index=['unit'])
 new_row = pd.Series(0.0, index=results.columns, name=f'year_{year}')
 results = pd.concat([results, new_row.to_frame().T], copy=False)

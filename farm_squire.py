@@ -18,7 +18,7 @@ import bioprocessor_functions as bi
 
 if __name__ == '__main__':
     harvest_stores = gd.harvest_yield.copy()
-    ul.apply_crop_subsidies(harvest_stores)
+    ul.apply_crop_subsidies()
     animals_on_farm = gd.animals_on_farm
     ul.fixate_fm(harvest_stores)
     bedding = ul.assign_bedding(harvest_stores, animals_on_farm)
@@ -27,6 +27,9 @@ if __name__ == '__main__':
     # reclaim bedding if herd gets reduced during feeding?
     feed = fd.feed_animals(harvest_stores, animals_on_farm)
     harvest_stores -= feed
+    ul.apply_digestion_methane_emission(animals_on_farm)
+    manure = animals_on_farm * gd.animal_data['manure_pasture_production']
+    ul.apply_manure(manure)
     biomatter_available = bi.biopro_all(harvest_stores, animals_on_farm)
     biomatter_use = bi.biopro_to_use(biomatter_available)
     ul.extract_fm(biomatter_use)
@@ -53,7 +56,7 @@ if __name__ == '__main__':
         al.age_herd(animals_on_farm)
         ul.apply_stocking_limits(animals_on_farm)
         harvest_stores = gd.harvest_yield.copy()
-        ul.apply_crop_subsidies(harvest_stores)
+        ul.apply_crop_subsidies()
         ul.fixate_fm(harvest_stores)
         bedding = ul.assign_bedding(harvest_stores, animals_on_farm)
         harvest_stores = harvest_stores.sub(bedding, fill_value=0.0)
@@ -61,6 +64,9 @@ if __name__ == '__main__':
         # reclaim bedding if herd gets reduced during feeding?
         feed = fd.feed_animals(harvest_stores, animals_on_farm)
         harvest_stores -= feed
+        ul.apply_digestion_methane_emission(animals_on_farm)
+        manure = animals_on_farm * gd.animal_data['manure_pasture_production']
+        ul.apply_manure(manure)
         biomatter_available = bi.biopro_all(harvest_stores, animals_on_farm)
         biomatter_use = bi.biopro_to_use(biomatter_available)
         ul.extract_fm(biomatter_use)

@@ -171,10 +171,26 @@ def apply_cash_crop_yield(cash_crops):
         gd.results['food_energy_produced'].loc[f'year_{gd.year}'] += Kcal
         gd.results['food_fat_produced'].loc[f'year_{gd.year}'] += fat
         gd.results['food_protein_produced'].loc[f'year_{gd.year}'] += prot
-    return
 
 
-def apply_crop_subsidies(harvest_stores):
-    for label, amount in harvest_stores.items():
-        subsidy = gd.plant_data['subsidies'].loc[label] * amount
-        gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] += subsidy
+def apply_crop_subsidies():
+    gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] += gd.subsidy
+
+    
+def apply_digestion_methane_emission(animals_on_farm):
+    gd.results['digestion_methane_emissions'].loc[f'year_{gd.year}'] =\
+        sum(animals_on_farm * gd.animal_data['digestion_methane_emission'])
+
+def apply_manure(manure):
+    for label, amount in manure.items():
+        nitrogen = gd.animal_data['manure_nitrogen_content'].loc[label] *\
+            amount * 0.63
+        phosphorus = gd.animal_data['manure_phosphorus_content'].loc[label] *\
+            amount
+        methane = gd.animal_data['manure_methane_content'].loc[label] *\
+            amount
+        gd.results['manure_methane_emissions'].loc[f'year_{gd.year}'] +=\
+            methane
+        gd.fertile_molecules['nitrogen'] += nitrogen
+        gd.fertile_molecules['phosphorus'] += phosphorus
+            
