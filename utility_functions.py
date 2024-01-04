@@ -156,7 +156,7 @@ def report_and_wipe_fm():
 
 def select_cash_crops(harvest_stores):
     cash_crops = harvest_stores.where(gd.plant_data['sale_use'] == True)
-    cash_crops = harvest_stores.where(cash_crops > 0)
+    cash_crops = cash_crops.where(cash_crops > 0)
     cash_crops.dropna(inplace=True)
     return cash_crops
 
@@ -193,4 +193,18 @@ def apply_manure(manure):
             methane
         gd.fertile_molecules['nitrogen'] += nitrogen
         gd.fertile_molecules['phosphorus'] += phosphorus
-            
+
+
+def select_mulch(harvest_stores):
+    mulch = harvest_stores.where(gd.plant_data['mulch_use'] == True)
+    mulch = mulch.where(mulch > 0)
+    mulch.dropna(inplace=True)
+    return mulch
+
+
+def apply_mulch(mulch):
+    for label, amount in mulch.items():
+        nitrogen = gd.plant_data['N_content'].loc[label] * 0.8 * amount
+        phosphorus = gd.plant_data['P_content'].loc[label] * amount
+        gd.fertile_molecules['nitrogen'] += nitrogen
+        gd.fertile_molecules['phosphorus'] += phosphorus
