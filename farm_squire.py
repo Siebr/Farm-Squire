@@ -85,6 +85,8 @@ if __name__ == '__main__':
         ul.apply_mulch(mulch)
         harvest_stores = harvest_stores.sub(mulch, fill_value=0.0)
         harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
+        if gd.year > 7:
+            pass
         ul.fertilize_fm()
         ul.report_and_wipe_fm()
         animals_on_farm.rename(f'year_{gd.year}', inplace=True)

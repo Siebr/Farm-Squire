@@ -573,15 +573,21 @@ def find_kg_need_for_prot(p_lab, p_yld, source_data, feed_needs_remain,
     """
     prot_yield = 0.0
     kg_needed = 0.0
+    fail = False
     while prot_yield < feed_needs_remain['protein']:
         prot_yield += harvest_stores[p_lab] * p_yld
         kg_needed += harvest_stores[p_lab]
         if prot_yield < feed_needs_remain['protein']:
             source_data_popped = source_data.drop(p_lab)
+            if 0 >= len(source_data_popped):
+                fail = True
+                break
             p_lab = find_best_prot_yielder(source_data_popped)
             p_yld = source_data['feed_protein_content'].loc[p_lab]
     surplus = prot_yield - feed_needs_remain['protein']
     kg_needed -= surplus / p_yld
+    if fail:
+        kg_needed = 0
     return kg_needed
 
 
@@ -611,15 +617,21 @@ def find_kg_need_for_energy(e_lab, e_yld, source_data, feed_needs_remain,
     """
     energy_yield = 0.0
     kg_needed = 0.0
+    fail = False
     while energy_yield < feed_needs_remain['energy']:
         energy_yield += harvest_stores[e_lab] * e_yld
         kg_needed += harvest_stores[e_lab]
         if energy_yield < feed_needs_remain['energy']:
             source_data_popped = source_data.drop(e_lab)
+            if 0 >= len(source_data_popped):
+                fail = True
+                break
             e_lab = find_best_energy_yielder(source_data_popped)
             e_yld = source_data['feed_energy_content'].loc[e_lab]
     surplus = energy_yield - feed_needs_remain['energy']
     kg_needed -= surplus / e_yld
+    if fail:
+        kg_needed = 0
     return kg_needed
 
 
