@@ -40,7 +40,7 @@ if __name__ == '__main__':
     ul.apply_cash_crop_yield(cash_crops)
     harvest_stores = harvest_stores.sub(cash_crops, fill_value=0.0)
     harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
-    mulch = ul.select_mulch(harvest_stores)
+    mulch = ul.select_mulch(harvest_stores, biomatter_available, biomatter_use)
     ul.apply_mulch(mulch)
     harvest_stores = harvest_stores.sub(mulch, fill_value=0.0)
     harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
@@ -81,7 +81,8 @@ if __name__ == '__main__':
         ul.apply_cash_crop_yield(cash_crops)
         harvest_stores = harvest_stores.sub(cash_crops, fill_value=0.0)
         harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
-        mulch = ul.select_mulch(harvest_stores)
+        mulch = ul.select_mulch(harvest_stores, biomatter_available,
+                                biomatter_use)
         ul.apply_mulch(mulch)
         harvest_stores = harvest_stores.sub(mulch, fill_value=0.0)
         harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)

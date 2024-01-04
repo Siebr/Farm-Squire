@@ -53,6 +53,7 @@ def biopro_with_mulch(harvest_stores):
 
 def get_deep_litter(animals_on_farm):
     """
+    ###########################################################################
     Calculate the Kg amount of deep litter produced by the animals on the farm.
 
     Parameters
@@ -69,11 +70,14 @@ def get_deep_litter(animals_on_farm):
     """
     deep_litter = sum(animals_on_farm *
                       gd.animal_data['deep_litter_production'])
+    deep_litter = {'deep_litter': deep_litter}
+    deep_litter = pd.Series(deep_litter)
     return deep_litter
 
 
-def biopro_animal(animals_on_farm):
+def biopro_manure():
     """
+    ###########################################################
     Select animal related matter suitable for the bioprocessor.
 
     Parameters
@@ -88,17 +92,16 @@ def biopro_animal(animals_on_farm):
         Contains matter types suitable for bioprocessor and their Kg amount.
 
     """
-    deep_litter = get_deep_litter(animals_on_farm)
     chicken_manure = gd.estate_values['import_chicken_manure']
     horse_manure = gd.estate_values['import_horse_manure']
-    bio_anim = {'chicken_manure': chicken_manure, 'horse_manure': horse_manure,
-                'deep_litter': deep_litter}
+    bio_anim = {'chicken_manure': chicken_manure, 'horse_manure': horse_manure}
     bio_anim = pd.Series(bio_anim)
     return bio_anim
 
 
 def biopro_all(harvest_stores, animals_on_farm):
     """
+    ###################################################################
     Get all matter suitable for bioprocessor in order of preferred use.
 
     Parameters
@@ -116,9 +119,11 @@ def biopro_all(harvest_stores, animals_on_farm):
         Series is ordered to have preferred matter appear first.
 
     """
-    biopro_available = biopro_animal(animals_on_farm)
+    biopro_available = biopro_manure()
     biopro_available = pd.concat([biopro_available,
                                   biopro_no_mulch(harvest_stores)])
+    biopro_available = pd.concat([biopro_available,
+                                 get_deep_litter(animals_on_farm)])
     biopro_available = pd.concat([biopro_available,
                                   biopro_with_mulch(harvest_stores)])
     return biopro_available

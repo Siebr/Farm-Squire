@@ -174,7 +174,8 @@ def apply_cash_crop_yield(cash_crops):
 
 
 def apply_crop_subsidies():
-    gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] += gd.subsidy
+    gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] +=\
+        gd.crop_subsidy
 
     
 def apply_digestion_methane_emission(animals_on_farm):
@@ -195,16 +196,27 @@ def apply_manure(manure):
         gd.fertile_molecules['phosphorus'] += phosphorus
 
 
-def select_mulch(harvest_stores):
+def select_mulch(harvest_stores, biomatter_available, biomatter_use):
     mulch = harvest_stores.where(gd.plant_data['mulch_use'] == True)
     mulch = mulch.where(mulch > 0)
     mulch.dropna(inplace=True)
+    deep_litter = biomatter_available['deep_litter'] -\
+        biomatter_use['deep_litter']
+    deep_litter = {'deep_litter': deep_litter}
+    deep_litter = pd.Series(deep_litter)
+    mulch = pd.concat([mulch, deep_litter])
     return mulch
 
 
 def apply_mulch(mulch):
     for label, amount in mulch.items():
-        nitrogen = gd.plant_data['N_content'].loc[label] * 0.8 * amount
-        phosphorus = gd.plant_data['P_content'].loc[label] * amount
-        gd.fertile_molecules['nitrogen'] += nitrogen
-        gd.fertile_molecules['phosphorus'] += phosphorus
+        if label == 'deep_litter':
+            nitrogen = gd.estate_values[f'{label}_N_content'] * 0.7 * amount
+            phosphorus = gd.estate_values[f'{label}_P_content'] * amount
+            gd.fertile_molecules['nitrogen'] += nitrogen
+            gd.fertile_molecules['phosphorus'] += phosphorus
+        else:
+            nitrogen = gd.plant_data['N_content'].loc[label] * 0.8 * amount
+            phosphorus = gd.plant_data['P_content'].loc[label] * amount
+            gd.fertile_molecules['nitrogen'] += nitrogen
+            gd.fertile_molecules['phosphorus'] += phosphorus

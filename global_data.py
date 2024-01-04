@@ -86,7 +86,7 @@ grassland_ha = plant_data['grassland_ratio'] *\
 cropping_ha = plant_data['cropping_ratio'] *\
     estate_values['cropping_area']
 harvest_ha = grassland_ha + cropping_ha
-subsidy = sum(plant_data['subsidies'] * harvest_ha)
+crop_subsidy = sum(plant_data['subsidies'] * harvest_ha)
 
 # calculate yearly phosphorus and nitrogen needed to fertilize crops
 p_use = 0.0
@@ -135,7 +135,7 @@ animals_on_farm.rename('year_1', inplace=True)
 herd_results = animals_on_farm.copy().to_frame().T
 
 fertile_molecules = pd.Series(0.0, index=['phosphorus', 'nitrogen'])
-print('startup complete')
+print('startup complete\n')
 
 
 if __name__ == '__main__':
