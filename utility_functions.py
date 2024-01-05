@@ -224,7 +224,6 @@ def apply_mulch(mulch):
 
 def apply_animal_balance(animals_on_farm):
     balance = sum(animals_on_farm * gd.animal_data['subsidies_gained'])
-    balance -= sum(animals_on_farm * gd.animal_data['barn_costs'])
     labour = sum(animals_on_farm * gd.animal_data['general_labour_costs'])
     labour_cost = labour * gd.estate_values['casual_labour_cost']
     balance -= labour_cost

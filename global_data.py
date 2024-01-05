@@ -99,6 +99,14 @@ if labour > regular_labour_avail:
 else:
     labour_cost = labour * estate_values['regular_labour_cost']
 crop_balance -= labour_cost
+fuel_use = estate_values['fuel_use_harvester_grassland'] *\
+    estate_values['cultivated_grasslands']
+fuel_use += estate_values['fuel_use_harvester_meadow'] *\
+    estate_values['dry_meadow/field']
+fuel_use += estate_values['fuel_use_harvester_cropping'] *\
+    estate_values['cropping_area']
+fuel_cost = fuel_use * estate_values['fuel_price']
+crop_balance -= fuel_cost
 
 # calculate yearly phosphorus and nitrogen needed to fertilize crops
 p_use = 0.0
