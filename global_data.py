@@ -12,26 +12,21 @@ import pandas as pd
 print('startup, please wait...')
 # read input files
 if len(argv) > 1:
-    estate_filename = argv[1]
+    filename = argv[1]
 else:
-    estate_filename = 'estate_input.xlsx'
-if len(argv) > 2:
-    plant_filename = argv[2]
-else:
-    plant_filename = 'plant_input_1_cut.xlsx'
-if len(argv) > 3:
-    animal_filename = argv[3]
-else:
-    animal_filename = 'animal_input.xlsx'
-if len(argv) > 4:
-    biodigestor_filename = argv[4]
-else:
-    biodigestor_filename = 'biodigestor_input.xlsx'
+    filename = 'input_example.xlsx'
+input_file = pd.ExcelFile(filename)
 
-estate_data = pd.read_excel(estate_filename, index_col=0)
-plant_data = pd.read_excel(plant_filename, index_col=0)
-animal_data = pd.read_excel(animal_filename, index_col=0)
-biodigestor_data = pd.read_excel(biodigestor_filename, index_col=0)
+estate_data = pd.read_excel(input_file, sheet_name='estate', index_col=0)
+plant_data = pd.read_excel(input_file, sheet_name='crops', index_col=0)
+animal_data = pd.read_excel(input_file, sheet_name='animal', index_col=0)
+biodigestor_data = pd.read_excel(input_file, sheet_name='biodigestor',\
+                                 index_col=0)
+    
+estate_data_ori = estate_data.copy()
+plant_data_ori = plant_data.copy()
+animal_data_ori = animal_data.copy()
+biodigestor_data_ori = biodigestor_data.copy()
 
 # format input files for internal use
 estate_units = estate_data['unit_of_measurement']

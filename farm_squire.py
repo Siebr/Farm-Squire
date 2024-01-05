@@ -14,6 +14,7 @@ import feed_functions as fd
 import animal_lifecycle_functions as al
 import utility_functions as ul
 import bioprocessor_functions as bi
+import datetime as dt
 
 
 if __name__ == '__main__':
@@ -100,7 +101,14 @@ if __name__ == '__main__':
     
     print(f'final herd is:\n{animals_on_farm}')
     
-    with pd.ExcelWriter('squire_results.xlsx') as writer:
+    timestamp = dt.datetime.now()
+    timestamp = timestamp.strftime('%Y-%m-%d_%H.%M.%S')
+    output_name = f'squire_results_{timestamp}.xlsx'
+    with pd.ExcelWriter(output_name) as writer:
         gd.results.to_excel(writer, sheet_name='statistics')
         gd.herd_results.to_excel(writer, sheet_name='herd')
+        gd.estate_data_ori.to_excel(writer, sheet_name='estate')
+        gd.plant_data_ori.to_excel(writer, sheet_name='crops')
+        gd.animal_data_ori.to_excel(writer, sheet_name='animal')
+        gd.biodigestor_data_ori.to_excel(writer, sheet_name='biodigestor')
     pass
