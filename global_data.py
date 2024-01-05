@@ -80,13 +80,25 @@ cropping_yields = (plant_data['cropping_ratio'] *
 
 harvest_yield = np.floor(grassland_yields + cropping_yields)
 
-# calculate crop subsidies
+# calculate crop money balance
 grassland_ha = plant_data['grassland_ratio'] *\
     estate_values['cultivated_grasslands']
 cropping_ha = plant_data['cropping_ratio'] *\
     estate_values['cropping_area']
 harvest_ha = grassland_ha + cropping_ha
-crop_subsidy = sum(plant_data['subsidies'] * harvest_ha)
+crop_balance = sum(plant_data['subsidies'] * harvest_ha)
+crop_balance -= estate_values['rented_land'] * estate_values['land_rent']
+crop_balance -= sum(harvest_yield * plant_data['cultivation_costs'])
+crop_balance -= sum(harvest_yield * plant_data['contract_work_costs'])
+labour = sum(harvest_yield * plant_data['general_labour_needed'])
+regular_labour_avail = estate_values['max_yearly_regular_labour']
+if labour > regular_labour_avail:
+    labour -= regular_labour_avail
+    labour_cost = regular_labour_avail * estate_values['regular_labour_cost']
+    labour_cost += labour * estate_values['casual_labour_cost']
+else:
+    labour_cost = labour * estate_values['regular_labour_cost']
+crop_balance -= labour_cost
 
 # calculate yearly phosphorus and nitrogen needed to fertilize crops
 p_use = 0.0

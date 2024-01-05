@@ -163,15 +163,9 @@ def reduce_animal(animals_on_farm):
             animals_on_farm[label] -= 1
             apply_slaughter_yield(label)
             return
+
     ratio_want = gd.estate_values['male_ratio'] /\
         gd.estate_values['female_ratio']
-    ratio_current = sum(all_males[1:]) / fertile_female_amount
-    label = 'male_0_year'
-    if ratio_current > ratio_want and animals_on_farm[label] > 0:
-        animals_on_farm[label] -= 1
-        apply_slaughter_yield(label)
-        return
-
     ratio_current = fertile_male_amount / fertile_female_amount
     if ratio_current > ratio_want:
         for label in fertile_males.index:
@@ -179,6 +173,7 @@ def reduce_animal(animals_on_farm):
                 animals_on_farm[label] -= 1
                 apply_slaughter_yield(label)
                 return
+
     ratio_want = gd.estate_values['female_ratio'] /\
         gd.estate_values['newborn_ratio']
     ratio_current = fertile_female_amount / newborn_amount
@@ -188,10 +183,23 @@ def reduce_animal(animals_on_farm):
                 animals_on_farm[label] -= 1
                 apply_slaughter_yield(label)
                 return
-    label = 'female_0_year'
-    if animals_on_farm[label] > 0:
-        animals_on_farm[label] -= 1
-        apply_slaughter_yield(label)
-        return
+            
+    if animals_on_farm['female_0_year'] > animals_on_farm['male_0_year']:
+        label = 'female_0_year'
+        if animals_on_farm[label] > 0:
+            animals_on_farm[label] -= 1
+            apply_slaughter_yield(label)
+            return
+    
+    if animals_on_farm['male_0_year'] >= animals_on_farm['female_0_year']:
+        ratio_current = sum(all_males[1:]) / fertile_female_amount
+        ratio_want = gd.estate_values['male_ratio'] /\
+            gd.estate_values['female_ratio']
+        label = 'male_0_year'
+        if ratio_current > ratio_want and animals_on_farm[label] > 0:
+            animals_on_farm[label] -= 1
+            apply_slaughter_yield(label)
+            return
+    
     print('cannot reduce herd further')
     return

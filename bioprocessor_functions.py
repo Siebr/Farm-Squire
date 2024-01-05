@@ -161,7 +161,6 @@ def biopro_to_use(bio_available):
 
 def make_biopro_products(bio_input):
     """
-    
 
     Parameters
     ----------

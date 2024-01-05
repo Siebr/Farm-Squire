@@ -18,7 +18,7 @@ import bioprocessor_functions as bi
 
 if __name__ == '__main__':
     harvest_stores = gd.harvest_yield.copy()
-    ul.apply_crop_subsidies()
+    ul.apply_crop_balance()
     animals_on_farm = gd.animals_on_farm
     ul.fixate_fm(harvest_stores)
     bedding = ul.assign_bedding(harvest_stores, animals_on_farm)
@@ -34,6 +34,7 @@ if __name__ == '__main__':
     biomatter_use = bi.biopro_to_use(biomatter_available)
     ul.extract_fm(biomatter_use)
     bi.make_biopro_products(biomatter_use)
+    ul.apply_digestate()
     harvest_stores = harvest_stores.sub(biomatter_use, fill_value=0.0)
     harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
     cash_crops = ul.select_cash_crops(harvest_stores)
@@ -44,10 +45,10 @@ if __name__ == '__main__':
     ul.apply_mulch(mulch)
     harvest_stores = harvest_stores.sub(mulch, fill_value=0.0)
     harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
+    ul.apply_animal_balance(animals_on_farm)
+    ul.apply_electricity_use()
     ul.fertilize_fm()
     ul.report_and_wipe_fm()
-    
-    
     print(f'years passed: {gd.year}')
     print(f'herd size is: {sum(animals_on_farm)}\n')
 
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         al.age_herd(animals_on_farm)
         ul.apply_stocking_limits(animals_on_farm)
         harvest_stores = gd.harvest_yield.copy()
-        ul.apply_crop_subsidies()
+        ul.apply_crop_balance()
         ul.fixate_fm(harvest_stores)
         bedding = ul.assign_bedding(harvest_stores, animals_on_farm)
         harvest_stores = harvest_stores.sub(bedding, fill_value=0.0)
@@ -75,6 +76,7 @@ if __name__ == '__main__':
         biomatter_use = bi.biopro_to_use(biomatter_available)
         ul.extract_fm(biomatter_use)
         bi.make_biopro_products(biomatter_use)
+        ul.apply_digestate()
         harvest_stores = harvest_stores.sub(biomatter_use, fill_value=0.0)
         harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
         cash_crops = ul.select_cash_crops(harvest_stores)
@@ -86,8 +88,8 @@ if __name__ == '__main__':
         ul.apply_mulch(mulch)
         harvest_stores = harvest_stores.sub(mulch, fill_value=0.0)
         harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
-        if gd.year > 7:
-            pass
+        ul.apply_animal_balance(animals_on_farm)
+        ul.apply_electricity_use()
         ul.fertilize_fm()
         ul.report_and_wipe_fm()
         animals_on_farm.rename(f'year_{gd.year}', inplace=True)

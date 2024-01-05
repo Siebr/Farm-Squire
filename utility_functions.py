@@ -121,7 +121,6 @@ def extract_fm(biopro_use):
                 gd.plant_data['N_content'].loc[label]
 
 
-
 def fertilize_fm():
     """
     Reduce nitrogen and phosphorus stores by fertilizing farmland.
@@ -173,14 +172,15 @@ def apply_cash_crop_yield(cash_crops):
         gd.results['food_protein_produced'].loc[f'year_{gd.year}'] += prot
 
 
-def apply_crop_subsidies():
+def apply_crop_balance():
     gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] +=\
-        gd.crop_subsidy
+        gd.crop_balance
 
     
 def apply_digestion_methane_emission(animals_on_farm):
     gd.results['digestion_methane_emissions'].loc[f'year_{gd.year}'] =\
         sum(animals_on_farm * gd.animal_data['digestion_methane_emission'])
+
 
 def apply_manure(manure):
     for label, amount in manure.items():
@@ -220,3 +220,28 @@ def apply_mulch(mulch):
             phosphorus = gd.plant_data['P_content'].loc[label] * amount
             gd.fertile_molecules['nitrogen'] += nitrogen
             gd.fertile_molecules['phosphorus'] += phosphorus
+            
+
+def apply_animal_balance(animals_on_farm):
+    balance = sum(animals_on_farm * gd.animal_data['subsidies_gained'])
+    balance -= sum(animals_on_farm * gd.animal_data['barn_costs'])
+    labour = sum(animals_on_farm * gd.animal_data['general_labour_costs'])
+    labour_cost = labour * gd.estate_values['casual_labour_cost']
+    balance -= labour_cost
+    livestock_units = sum(animals_on_farm * gd.animal_data['livestock_units'])
+    maintenance_cost = gd.estate_values['animal_maintenance'] * livestock_units
+    balance -= maintenance_cost
+    gd.results['revenue_balance_animal'].loc[f'year_{gd.year}'] += balance
+    electricity_use = sum(animals_on_farm * gd.animal_data['electricity_use'])
+    gd.results['electricity_balance'].loc[f'year_{gd.year}'] -= electricity_use
+
+
+def apply_electricity_use():
+    gd.results['electricity_balance'].loc[f'year_{gd.year}'] -=\
+        gd.estate_values['general_electricity_consumption']
+
+
+def apply_digestate():
+    digestate = gd.results['digestate_produced'].loc[f'year_{gd.year}']
+    cost = gd.estate_values['digestate_application_cost'] * digestate
+    gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] -= cost
