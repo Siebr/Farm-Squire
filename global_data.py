@@ -10,7 +10,7 @@ import pandas as pd
 
 
 print('startup, please wait...')
-# read input files
+# read input file
 if len(argv) > 1:
     filename = argv[1]
 else:
@@ -22,6 +22,7 @@ plant_data = pd.read_excel(input_file, sheet_name='crops', index_col=0)
 animal_data = pd.read_excel(input_file, sheet_name='animal', index_col=0)
 biodigestor_data = pd.read_excel(input_file, sheet_name='biodigestor',\
                                  index_col=0)
+input_file.close()
     
 estate_data_ori = estate_data.copy()
 plant_data_ori = plant_data.copy()
@@ -103,12 +104,24 @@ fuel_use += estate_values['fuel_use_harvester_cropping'] *\
 fuel_cost = fuel_use * estate_values['fuel_price']
 crop_balance -= fuel_cost
 
+# check brewery
+brewery = False
+if harvest_ha['Barley'] + harvest_ha['Barley_straw'] >=\
+    estate_values['BSG/BSY_from_barley_only_at']:
+    brewery = True
+if brewery:
+    harvest_yield['BS_grain'] = estate_values['import_BSG_DM']
+    harvest_yield['BS_yeast'] = estate_values['import_BSY_DM']
+
 # calculate yearly phosphorus and nitrogen needed to fertilize crops
 p_use = 0.0
 n_use = 0.0
 for label, amount in harvest_yield.items():
     p_use += plant_data['P_content'].loc[label] * amount
     n_use += plant_data['N_content'].loc[label] * amount
+
+# make intermediate pd.Series used for tracking nitrogen and phosphorus changes    
+fertile_molecules = pd.Series(0.0, index=['phosphorus', 'nitrogen'])
 
 # split initial herd from data
 animals_on_farm = animal_data.pop('initial_animal_count')
@@ -149,7 +162,6 @@ results = pd.concat([results, new_row.to_frame().T], copy=False)
 animals_on_farm.rename('year_1', inplace=True)
 herd_results = animals_on_farm.copy().to_frame().T
 
-fertile_molecules = pd.Series(0.0, index=['phosphorus', 'nitrogen'])
 print('startup complete\n')
 
 
@@ -157,6 +169,5 @@ if __name__ == '__main__':
     print('This is only a supplementary script to "farm_squire.py".')
     print('This script takes the input files supplied by the command line'+
           ' and reads those in.')
-    print(f'The current files used are: {estate_filename}, {plant_filename}, '+
-          f'{animal_filename}, {biodigestor_filename}')
+    print(f'The current files used are: {filename}')
 

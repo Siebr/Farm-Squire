@@ -1,13 +1,13 @@
 """
 Author: Siebrant Hendriks.
 
-Supplementary script for slaughtering animals
+Supplementary script used for aging/reproduction and culling farm animals
 """
 from random import random
 from random import seed
 import numpy as np
 import global_data as gd
-seed('squire')  # this hopefully will give consistent results on retries
+seed('squire')  # set seed to make results reproducable
 
 
 def apply_slaughter_yield(animal_label):
@@ -58,6 +58,7 @@ def age_herd(animals_on_farm):
     """
     newborn_male = 0
     newborn_female = 0
+    # Slaughter max age castrated animals, and age non max age.
     for pos, label in enumerate(gd.castrated_labs):
         amount = animals_on_farm[label]
         if pos == 0:
@@ -67,6 +68,9 @@ def age_herd(animals_on_farm):
             label = gd.castrated_labs[pos - 1]
             animals_on_farm[label] = amount
 
+    # Have all fertile females bear children based on fertility rates.
+    # 'Fertile' ones that did not bear child get slaughtered.
+    # After max age is slaughtered, all other is aged.
     for pos, label in enumerate(gd.female_labs):
         fert = gd.animal_data['fertility_rate'].loc[label]
         decider_1 = random()
@@ -95,7 +99,9 @@ def age_herd(animals_on_farm):
                 apply_slaughter_yield(label)
             label = gd.female_labs[pos - 1]
             animals_on_farm[label] = int(succes)
-
+    
+    # Slaughter max age fertile male.
+    # Age all fertile males.
     for pos, label in enumerate(gd.male_labs[:-1]):
         amount = animals_on_farm[label]
         if pos == 0:
@@ -104,10 +110,11 @@ def age_herd(animals_on_farm):
         else:
             label = gd.male_labs[pos - 1]
             animals_on_farm[label] = amount
-
+    
+    # Determine how many fertile males are desired on the farm, and how many
+    # are present. If more are present than desired slaughter them.
     male_ratio = gd.estate_values['female_ratio'] /\
         gd.estate_values['male_ratio']
-
     male_limit = sum(animals_on_farm[gd.female_labs[:-1]]) / male_ratio
     males_present = sum(animals_on_farm[gd.male_labs[:-1]])
     while males_present > male_limit:
@@ -116,6 +123,8 @@ def age_herd(animals_on_farm):
                 animals_on_farm[label] -= 1
                 apply_slaughter_yield(label)
         males_present = sum(animals_on_farm[gd.male_labs[:-1]])
+    # Determine how many baby males are needed to replenish desired
+    # fertile male amount. Remainder of baby males get castrated.
     males_to_add = 0
     if males_present < male_limit:
         males_to_add = np.ceil(male_limit) - males_present
@@ -124,6 +133,7 @@ def age_herd(animals_on_farm):
     males_to_castrate = animals_on_farm['male_0_year'] - males_to_add
     animals_on_farm['male_1_year'] = int(males_to_add)
     animals_on_farm['male_castrated_1_year'] = int(males_to_castrate)
+    # Add newborn babies to herd.
     animals_on_farm['male_0_year'] = int(newborn_male)
     animals_on_farm['female_0_year'] = int(newborn_female)
 
@@ -157,13 +167,15 @@ def reduce_animal(animals_on_farm):
     fertile_female_amount = sum(fertile_females * fertility_rates)
 
     newborn_amount = sum(animals_on_farm[['male_0_year', 'female_0_year']])
-
+    
+    # First slaughter castrated males.
     for label in gd.castrated_labs:
         if animals_on_farm[label] > 0:
             animals_on_farm[label] -= 1
             apply_slaughter_yield(label)
             return
-
+    
+    # Second slaughter superfluous fertile males.
     ratio_want = gd.estate_values['male_ratio'] /\
         gd.estate_values['female_ratio']
     ratio_current = fertile_male_amount / fertile_female_amount
@@ -173,7 +185,8 @@ def reduce_animal(animals_on_farm):
                 animals_on_farm[label] -= 1
                 apply_slaughter_yield(label)
                 return
-
+    
+    # Third slaughter superfluous fertile femals.
     ratio_want = gd.estate_values['female_ratio'] /\
         gd.estate_values['newborn_ratio']
     ratio_current = fertile_female_amount / newborn_amount
@@ -183,7 +196,9 @@ def reduce_animal(animals_on_farm):
                 animals_on_farm[label] -= 1
                 apply_slaughter_yield(label)
                 return
-            
+    
+    # When more newborn females are present than newborn males,
+    # slaughter a newborn female.        
     if animals_on_farm['female_0_year'] > animals_on_farm['male_0_year']:
         label = 'female_0_year'
         if animals_on_farm[label] > 0:
@@ -191,6 +206,8 @@ def reduce_animal(animals_on_farm):
             apply_slaughter_yield(label)
             return
     
+    # when more newborn males are present then newborn females, and the herd
+    # won't 
     if animals_on_farm['male_0_year'] >= animals_on_farm['female_0_year']:
         ratio_current = sum(all_males[1:]) / fertile_female_amount
         ratio_want = gd.estate_values['male_ratio'] /\

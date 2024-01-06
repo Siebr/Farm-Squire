@@ -459,7 +459,8 @@ def find_best_prot_yielder(source_data):
         The name of the available crop yielding the most protein.
     """
     protein_rank = source_data['feed_protein_content']
-#    protein_rank /= source_data['feed_energy_content']
+#   alternate selection criterea below
+#   protein_rank /= source_data['feed_energy_content']
     best_rank = protein_rank.nlargest(n=1)
     best = best_rank.index[0]
     return best
@@ -480,6 +481,7 @@ def find_best_energy_yielder(source_data):
         The name of the available crop yielding the most energy.
     """
     energy_rank = source_data['feed_energy_content']
+#   alternate selection criterea below
 #   energy_rank /= source_data['feed_protein_content']
     best_rank = energy_rank.nlargest(n=1)
     best = best_rank.index[0]

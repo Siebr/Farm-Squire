@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-farm squire models nutrient flows on beef farms.
+farm squire models nutrient flows and yearly operations on beef farms.
 
 coding and concept Author: Siebrant Hendriks,
 data and concept Author: Millie Hookey.
@@ -16,7 +16,8 @@ import utility_functions as ul
 import bioprocessor_functions as bi
 import datetime as dt
 
-
+# Core loop implemented as 'do while' each run accounts for one year of
+# operations.
 if __name__ == '__main__':
     harvest_stores = gd.harvest_yield.copy()
     ul.apply_crop_balance()
@@ -67,7 +68,6 @@ if __name__ == '__main__':
         bedding = ul.assign_bedding(harvest_stores, animals_on_farm)
         harvest_stores = harvest_stores.sub(bedding, fill_value=0.0)
         harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
-        # reclaim bedding if herd gets reduced during feeding?
         feed = fd.feed_animals(harvest_stores, animals_on_farm)
         harvest_stores -= feed
         ul.apply_digestion_methane_emission(animals_on_farm)
@@ -101,6 +101,7 @@ if __name__ == '__main__':
     
     print(f'final herd is:\n{animals_on_farm}')
     
+    # At the end of the run output relevant results and inputs used.
     timestamp = dt.datetime.now()
     timestamp = timestamp.strftime('%Y-%m-%d_%H.%M.%S')
     output_name = f'squire_results_{timestamp}.xlsx'

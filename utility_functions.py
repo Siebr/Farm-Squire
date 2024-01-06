@@ -238,6 +238,9 @@ def apply_animal_balance(animals_on_farm):
 def apply_electricity_use():
     gd.results['electricity_balance'].loc[f'year_{gd.year}'] -=\
         gd.estate_values['general_electricity_consumption']
+    if gd.brewery == True:
+        gd.results['electricity_balance'].loc[f'year_{gd.year}'] -=\
+            gd.estate_values['brewery_electricity_requirement']
 
 
 def apply_digestate():
