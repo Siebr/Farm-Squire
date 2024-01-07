@@ -34,6 +34,7 @@ Say you have a piece of farmland that for some years serves the purpose for crop
 E.G.: If you have 100 Ha of farmland that would rotate between three years of cropping, and two years of animal pastures. Then for each year of operation you'd virtually have 60 Ha of cropping land, and 40 Ha of animal pastures. These statistics should be supplied to the estate sheet as such.
 
 #### on animal ratios:
-The way the script is implemented the animal ratios (newborn, female, and male) Only guarantee a minimal ratio. This means that for example in the example sheet there will never be less than 20 fertile females for each fertile male. But it will stil happen that there might be 
+The way the script is implemented the animal ratios (newborn, female, and male) only act as a desired ratio. This means that the actual numbers will vary but try to be as close as the ratio as possible. E.G.: in the example scenario for each fertile male the amount of fertile females would vary between 10 and 30 with a medean of 24.
 
 ### the crops sheet:
+In addition to the first two golden columns the estate sheet had the crops sheet now ...
