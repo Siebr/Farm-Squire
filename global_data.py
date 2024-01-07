@@ -74,7 +74,7 @@ cropping_yields = (plant_data['cropping_ratio'] *
 harvest_yield = np.floor(grassland_yields + cropping_yields)
 harvest_yield = harvest_yield.astype('int')
 
-# calculate crop money balance
+# calculate yearly flat crop money balance
 grassland_ha = plant_data['grassland_ratio'] *\
     estate_values['cultivated_grasslands']
 cropping_ha = plant_data['cropping_ratio'] *\
