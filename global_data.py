@@ -10,7 +10,7 @@ import pandas as pd
 
 
 print('startup, please wait...')
-# read input file
+# read input file, defaults to example if no other file is given.
 if len(argv) > 1:
     filename = argv[1]
 else:
@@ -33,8 +33,7 @@ biodigestor_data_ori = biodigestor_data.copy()
 estate_units = estate_data['unit_of_measurement']
 estate_values = estate_data['amount']
 
-plant_units = plant_data['unit_of_measurement']
-plant_data.pop('unit_of_measurement')
+plant_units = plant_data.pop('unit_of_measurement')
 plant_data = plant_data.T
 plant_data = plant_data.astype('float')
 
@@ -45,17 +44,15 @@ type_dict = {'feeding_priority': 'int',
              'sale_use': 'bool'}
 plant_data = plant_data.astype(type_dict)
 
-unit_change = ['feed_protein_content']
+unit_change = 'feed_protein_content'
 plant_data[unit_change] = plant_data[unit_change] / 1000
 plant_units[unit_change] = 'Kg/Kg'
 
-animal_units = animal_data['unit_of_measurement']
-animal_data.pop('unit_of_measurement')
+animal_units = animal_data.pop('unit_of_measurement')
 animal_data = animal_data.T
 animal_data = animal_data.astype({'initial_animal_count': 'int'})
 
-biodigestor_units = biodigestor_data['unit_of_measurement']
-biodigestor_data.pop('unit_of_measurement')
+biodigestor_units = biodigestor_data.pop('unit_of_measurement')
 biodigestor_data = biodigestor_data.T
 
 # calculate yearly harvest yield
@@ -75,6 +72,7 @@ cropping_yields = (plant_data['cropping_ratio'] *
                    plant_data['yield_DM'])
 
 harvest_yield = np.floor(grassland_yields + cropping_yields)
+harvest_yield = harvest_yield.astype('int')
 
 # calculate crop money balance
 grassland_ha = plant_data['grassland_ratio'] *\
@@ -110,8 +108,8 @@ if harvest_ha['Barley'] + harvest_ha['Barley_straw'] >=\
     estate_values['BSG/BSY_from_barley_only_at']:
     brewery = True
 if brewery:
-    harvest_yield['BS_grain'] = estate_values['import_BSG_DM']
-    harvest_yield['BS_yeast'] = estate_values['import_BSY_DM']
+    harvest_yield['BS_grain'] = int(np.floor(estate_values['import_BSG_DM']))
+    harvest_yield['BS_yeast'] = int(np.floor(estate_values['import_BSY_DM']))
 
 # calculate yearly phosphorus and nitrogen needed to fertilize crops
 p_use = 0.0

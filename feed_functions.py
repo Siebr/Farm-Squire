@@ -266,184 +266,6 @@ class NutrientData:
             self.kg_tf = first - second
 
 
-def mk_feeds_to_use(nr_of_groups, harvest_stores):
-    """
-    Construct list of different crops to use for feeding.
-
-    Parameters
-    ----------
-    nr_of_groups : int
-        Indicates current priority in crop types being considered for feed.
-    harvest_stores : pd.Series
-        Contains all harvested crops and their stored amounts.
-
-    Returns
-    -------
-    feeds_to_use : list
-        feed names being used.
-    """
-    feeding_priority = gd.plant_data['feeding_priority']
-    feeds_to_use = gd.plant_data.index
-    feeds_to_use = feeds_to_use.where(feeding_priority <= nr_of_groups)
-    feeds_to_use = feeds_to_use.where(feeding_priority != 0)
-    feeds_to_use = feeds_to_use.where(harvest_stores > 0)
-    if len(feeds_to_use) > 1:
-        feeds_to_use = feeds_to_use.drop(None)
-    feeds_to_use = list(feeds_to_use)
-    return feeds_to_use
-
-
-def mk_yields_from_groups(nr_of_groups, harvest_stores):
-    """
-    Determine nutrient yields of current crop selection considered for feed.
-
-    Parameters
-    ----------
-    nr_of_groups : int
-        Indicates current priority in crop types being considered for feed.
-
-    Returns
-    -------
-    feed_yields : pd.Series
-        Contains the nutrient yields (protein, energy and dry matter) of the
-        current crop selection considered for feed.
-    """
-    feeds_in_use = mk_feeds_to_use(nr_of_groups, harvest_stores)
-    feeds = harvest_stores.loc[feeds_in_use]
-    prot_stats = gd.plant_data['feed_protein_content'].loc[feeds_in_use]
-    energy_stats = gd.plant_data['feed_energy_content'].loc[feeds_in_use]
-    prot_yield = sum(feeds * prot_stats)
-    energy_yield = sum(feeds * energy_stats)
-    dm_yield = sum(feeds)
-    feed_yields = {'protein': prot_yield,
-                   'energy': energy_yield,
-                   'dm': dm_yield}
-    feed_yields = pd.Series(feed_yields)
-    return feed_yields
-
-
-def mk_feed_needs(animals_on_farm):
-    """
-    Determine nutrient needs of current herd.
-
-    Parameters
-    ----------
-    animals_on_farm : pd.Series
-        Keeps track of which animals are on the farm and in what amount they
-        are present.
-
-    Returns
-    -------
-    herd_feed_needs : pd.Series
-    Countains the minimal nutrient needs for the current herd of animals.
-    """
-    herd_prot_req = sum(animals_on_farm *
-                        gd.animal_data['protein_requirement'])
-    herd_mj_req = sum(animals_on_farm *
-                      gd.animal_data['feed_energy_requirement'])
-    herd_dm_req = sum(animals_on_farm * gd.animal_data['DM_requirement'])
-    herd_feed_needs = {'protein': herd_prot_req,
-                       'energy': herd_mj_req,
-                       'dm': herd_dm_req}
-    herd_feed_needs = pd.Series(herd_feed_needs)
-    return herd_feed_needs
-
-
-def mk_feed_limits(animals_on_farm):
-    """
-    Determine the nutrient limits that could be fed to the herd.
-
-    Parameters
-    ----------
-    animals_on_farm : pd.Series
-        Keeps track of which animals are on the farm and in what amount they
-        are present.
-
-    Returns
-    -------
-    herd_feed_ceils : pd.Series
-        Contains the maxium nutrient amounts the herd could be fed.
-    """
-    herd_prot_ceil = sum(animals_on_farm * gd.animal_data['protein_limit'])
-    herd_energy_ceil = sum(animals_on_farm *
-                           gd.animal_data['feed_energy_limit'])
-    herd_dm_ceil = sum(animals_on_farm * gd.animal_data['DM_limit'])
-    herd_feed_ceils = {'protein': herd_prot_ceil,
-                       'energy': herd_energy_ceil,
-                       'dm': herd_dm_ceil}
-    herd_feed_ceils = pd.Series(herd_feed_ceils)
-    return herd_feed_ceils
-
-
-def check_margin(feed, feed_needs, feed_limits, source_data):
-    """
-    Check if current feed proposed fits within nutrient limits.
-
-    Parameters
-    ----------
-    feed : pd.Series
-        Contains the kg amount considered for feed for each crop.
-    feed_needs : pd.Series
-        Contains the minimum required amount of nutrients in this feeding step.
-    feed_limits : pd.Series
-        Containing the maximum amount of nutrients that may be fed in this
-        feeding step.
-    source_data : pd.Dataframe
-        Data frame containing all attributes relevant to selection of feed.
-
-    Returns
-    -------
-    bool
-        True if given feed amount fits within nutrient limits specified.
-        False if not.
-    """
-    prot_yield = sum(feed * source_data['feed_protein_content'])
-    energy_yield = sum(feed * source_data['feed_energy_content'])
-    dm_yield = sum(feed)
-    if feed_limits['protein'] >= prot_yield >= feed_needs['protein']:
-        if feed_limits['energy'] >= energy_yield >= feed_needs['energy']:
-            if feed_limits['dm'] >= dm_yield >= feed_needs['dm']:
-                return True
-    return False
-
-
-def determine_feeding_groups(feed_needs, harvest_stores):
-    """
-    Determine the amount of feeding groups needed to satisfy feed needs.
-
-    Parameters
-    ----------
-    feed_needs : pd.Series
-        Countains the minimal nutrient needs for the current herd of animals.
-
-    Returns
-    -------
-    groups_considered : int
-        specifies the priority ranking up to which certain crops will be
-        considered for feed purposes.
-    """
-    need_met = False
-    groups_considered = 1
-    feed_yields = mk_yields_from_groups(groups_considered, harvest_stores)
-    if feed_yields['protein'] >= feed_needs['protein']:
-        if feed_yields['energy'] >= feed_needs['energy']:
-            if feed_yields['dm'] >= feed_needs['dm']:
-                need_met = True
-
-    while not need_met:
-        groups_considered += 1
-        if groups_considered > max(gd.plant_data['feeding_priority']):
-            groups_considered = 0
-            break
-        feed_yields = mk_yields_from_groups(groups_considered, harvest_stores)
-        if feed_yields['protein'] >= feed_needs['protein']:
-            if feed_yields['energy'] >= feed_needs['energy']:
-                if feed_yields['dm'] >= feed_needs['dm']:
-                    need_met = True
-
-    return groups_considered
-
-
 def find_best_prot_yielder(source_data):
     """
     Find crop that yields the most protein per Kg present in source data.
@@ -519,36 +341,6 @@ def find_best_dm_yielder(source_data, kg_need_for_prot, kg_need_for_energy):
     return best
 
 
-def mk_yields_from_feed(label, amount, source_data):
-    """
-    Determine nutrient yields of given crop in specified amount.
-
-    Parameters
-    ----------
-    label : str
-        Name of the crop being fed.
-    amount : float
-        Kg amount of the crop being fed.
-    source_data : pd.Dataframe
-        Data frame containing all attributes relevant to selection of feed.
-
-    Returns
-    -------
-    feed_yields : pd.Series
-        Contains the nutrient yields (protein, energy and dry matter) of the
-        current crop selection considered for feed.
-    """
-    prot_yield = source_data['feed_protein_content'].loc[label] * amount
-    energy_yield = source_data['feed_energy_content'].loc[label] * amount
-    dm_yield = amount
-
-    feed_yields = {'protein': prot_yield,
-                   'energy': energy_yield,
-                   'dm': dm_yield}
-    feed_yields = pd.Series(feed_yields)
-    return feed_yields
-
-
 def find_kg_need_for_prot(p_lab, p_yld, source_data, feed_needs_remain,
                           harvest_stores):
     """
@@ -575,7 +367,7 @@ def find_kg_need_for_prot(p_lab, p_yld, source_data, feed_needs_remain,
     """
     prot_yield = 0.0
     kg_needed = 0.0
-    fail = False
+    fail = False # might want to figure out better fail safe later
     while prot_yield < feed_needs_remain['protein']:
         prot_yield += harvest_stores[p_lab] * p_yld
         kg_needed += harvest_stores[p_lab]
@@ -619,7 +411,7 @@ def find_kg_need_for_energy(e_lab, e_yld, source_data, feed_needs_remain,
     """
     energy_yield = 0.0
     kg_needed = 0.0
-    fail = False
+    fail = False # might want to figure out better fail safe later
     while energy_yield < feed_needs_remain['energy']:
         energy_yield += harvest_stores[e_lab] * e_yld
         kg_needed += harvest_stores[e_lab]
@@ -635,6 +427,182 @@ def find_kg_need_for_energy(e_lab, e_yld, source_data, feed_needs_remain,
     if fail:
         kg_needed = 0
     return kg_needed
+
+
+def mk_feeds_to_use(nr_of_groups, harvest_stores):
+    """
+    Construct list of different crops to use for feeding.
+
+    Parameters
+    ----------
+    nr_of_groups : int
+        Indicates current priority in crop types being considered for feed.
+    harvest_stores : pd.Series
+        Contains all harvested crops and their stored amounts.
+
+    Returns
+    -------
+    feeds_to_use : list
+        feed names being used.
+    """
+    feeding_priority = gd.plant_data['feeding_priority']
+    feeds_to_use = gd.plant_data.index
+    feeds_to_use = feeds_to_use.where(feeding_priority <= nr_of_groups)
+    feeds_to_use = feeds_to_use.where(feeding_priority != 0)
+    feeds_to_use = feeds_to_use.where(harvest_stores > 0)
+    if len(feeds_to_use) > 1:
+        feeds_to_use = feeds_to_use.drop(None)
+    feeds_to_use = list(feeds_to_use)
+    return feeds_to_use
+
+
+def mk_yields_from_groups(nr_of_groups, harvest_stores):
+    """
+    Determine nutrient yields of current crop selection considered for feed.
+
+    Parameters
+    ----------
+    nr_of_groups : int
+        Indicates current priority in crop types being considered for feed.
+
+    Returns
+    -------
+    feed_yields : pd.Series
+        Contains the nutrient yields (protein, energy and dry matter) of the
+        current crop selection considered for feed.
+    """
+    feeds_in_use = mk_feeds_to_use(nr_of_groups, harvest_stores)
+    feeds = harvest_stores.loc[feeds_in_use]
+    prot_stats = gd.plant_data['feed_protein_content'].loc[feeds_in_use]
+    energy_stats = gd.plant_data['feed_energy_content'].loc[feeds_in_use]
+    prot_yield = sum(feeds * prot_stats)
+    energy_yield = sum(feeds * energy_stats)
+    dm_yield = sum(feeds)
+    feed_yields = {'protein': prot_yield,
+                   'energy': energy_yield,
+                   'dm': dm_yield}
+    feed_yields = pd.Series(feed_yields)
+    return feed_yields
+
+
+def determine_feeding_groups(feed_needs, harvest_stores):
+    """
+    Determine the amount of feeding groups needed to satisfy feed needs.
+
+    Parameters
+    ----------
+    feed_needs : pd.Series
+        Countains the minimal nutrient needs for the current herd of animals.
+
+    Returns
+    -------
+    groups_considered : int
+        specifies the priority ranking up to which certain crops will be
+        considered for feed purposes.
+    """
+    need_met = False
+    groups_considered = 1
+    feed_yields = mk_yields_from_groups(groups_considered, harvest_stores)
+    if feed_yields['protein'] >= feed_needs['protein']:
+        if feed_yields['energy'] >= feed_needs['energy']:
+            if feed_yields['dm'] >= feed_needs['dm']:
+                need_met = True
+
+    while not need_met:
+        groups_considered += 1
+        if groups_considered > max(gd.plant_data['feeding_priority']):
+            groups_considered = 0
+            break
+        feed_yields = mk_yields_from_groups(groups_considered, harvest_stores)
+        if feed_yields['protein'] >= feed_needs['protein']:
+            if feed_yields['energy'] >= feed_needs['energy']:
+                if feed_yields['dm'] >= feed_needs['dm']:
+                    need_met = True
+
+    return groups_considered
+
+
+def mk_feed_needs(animals_on_farm):
+    """
+    Determine nutrient needs of current herd.
+
+    Parameters
+    ----------
+    animals_on_farm : pd.Series
+        Keeps track of which animals are on the farm and in what amount they
+        are present.
+
+    Returns
+    -------
+    herd_feed_needs : pd.Series
+    Countains the minimal nutrient needs for the current herd of animals.
+    """
+    herd_prot_req = sum(animals_on_farm *
+                        gd.animal_data['protein_requirement'])
+    herd_mj_req = sum(animals_on_farm *
+                      gd.animal_data['feed_energy_requirement'])
+    herd_dm_req = sum(animals_on_farm * gd.animal_data['DM_requirement'])
+    herd_feed_needs = {'protein': herd_prot_req,
+                       'energy': herd_mj_req,
+                       'dm': herd_dm_req}
+    herd_feed_needs = pd.Series(herd_feed_needs)
+    return herd_feed_needs
+
+
+def mk_feed_limits(animals_on_farm):
+    """
+    Determine the nutrient limits that could be fed to the herd.
+
+    Parameters
+    ----------
+    animals_on_farm : pd.Series
+        Keeps track of which animals are on the farm and in what amount they
+        are present.
+
+    Returns
+    -------
+    herd_feed_ceils : pd.Series
+        Contains the maxium nutrient amounts the herd could be fed.
+    """
+    herd_prot_ceil = sum(animals_on_farm * gd.animal_data['protein_limit'])
+    herd_energy_ceil = sum(animals_on_farm *
+                           gd.animal_data['feed_energy_limit'])
+    herd_dm_ceil = sum(animals_on_farm * gd.animal_data['DM_limit'])
+    herd_feed_ceils = {'protein': herd_prot_ceil,
+                       'energy': herd_energy_ceil,
+                       'dm': herd_dm_ceil}
+    herd_feed_ceils = pd.Series(herd_feed_ceils)
+    return herd_feed_ceils
+
+
+def mk_yields_from_feed(label, amount, source_data):
+    """
+    Determine nutrient yields of given crop in specified amount.
+
+    Parameters
+    ----------
+    label : str
+        Name of the crop being fed.
+    amount : float
+        Kg amount of the crop being fed.
+    source_data : pd.Dataframe
+        Data frame containing all attributes relevant to selection of feed.
+
+    Returns
+    -------
+    feed_yields : pd.Series
+        Contains the nutrient yields (protein, energy and dry matter) of the
+        current crop selection considered for feed.
+    """
+    prot_yield = source_data['feed_protein_content'].loc[label] * amount
+    energy_yield = source_data['feed_energy_content'].loc[label] * amount
+    dm_yield = amount
+
+    feed_yields = {'protein': prot_yield,
+                   'energy': energy_yield,
+                   'dm': dm_yield}
+    feed_yields = pd.Series(feed_yields)
+    return feed_yields
 
 
 def find_la(nutris, feed_needs_remain, harvest_stores):
@@ -659,7 +627,7 @@ def find_la(nutris, feed_needs_remain, harvest_stores):
         Kg amount of the crop to feed.
     """
     if nutris.p_kg == nutris.first:
-        if nutris.kg_tf * nutris.p_yld > feed_needs_remain['protein']:
+        if nutris.kg_tf * nutris.p_yld > (feed_needs_remain['protein'] + 1):
             nutris.kg_tf = feed_needs_remain['protein'] / nutris.p_yld / 100
             if nutris.kg_tf < 1:
                 nutris.kg_tf *= 100
@@ -668,7 +636,7 @@ def find_la(nutris, feed_needs_remain, harvest_stores):
         label = nutris.p_lab
         amount = nutris.kg_tf
     if nutris.e_kg == nutris.first:
-        if nutris.kg_tf * nutris.e_yld > feed_needs_remain['energy']:
+        if nutris.kg_tf * nutris.e_yld > (feed_needs_remain['energy'] + 1):
             nutris.kg_tf = feed_needs_remain['energy'] / nutris.e_yld / 100
             if nutris.kg_tf < 1:
                 nutris.kg_tf *= 100
@@ -744,6 +712,7 @@ def under_grass(feed_use, grasses, amount):
     amount : float
         amount of crop/grass to be fed after limit is applied
     """
+    # Maybe add barn time to estate in future.
     max_grass = (sum(feed_use) + amount) * (173 / 365)
     grass_yield = sum(feed_use[grasses]) + amount
     while grass_yield > max_grass:
@@ -757,6 +726,38 @@ def under_grass(feed_use, grasses, amount):
             amount = 0
             break
     return amount
+
+
+def check_margin(feed, feed_needs, feed_limits, source_data):
+    """
+    Check if current feed proposed fits within nutrient limits.
+
+    Parameters
+    ----------
+    feed : pd.Series
+        Contains the kg amount considered for feed for each crop.
+    feed_needs : pd.Series
+        Contains the minimum required amount of nutrients in this feeding step.
+    feed_limits : pd.Series
+        Containing the maximum amount of nutrients that may be fed in this
+        feeding step.
+    source_data : pd.Dataframe
+        Data frame containing all attributes relevant to selection of feed.
+
+    Returns
+    -------
+    bool
+        True if given feed amount fits within nutrient limits specified.
+        False if not.
+    """
+    prot_yield = sum(feed * source_data['feed_protein_content'])
+    energy_yield = sum(feed * source_data['feed_energy_content'])
+    dm_yield = sum(feed)
+    if feed_limits['protein'] >= prot_yield >= feed_needs['protein']:
+        if feed_limits['energy'] >= energy_yield >= feed_needs['energy']:
+            if feed_limits['dm'] >= dm_yield >= feed_needs['dm']:
+                return True
+    return False
 
 
 def find_feed_optim(harvest_stores, feed_needs, feed_limits,
@@ -791,29 +792,40 @@ def find_feed_optim(harvest_stores, feed_needs, feed_limits,
     feed_needs_remain = feed_needs.copy()
     feed_limits_remain = feed_limits.copy()
     skip_grass = False
-
+    
+    # As long as feed does not match nutrient requirement add extra feed. 
     while not check_margin(feed_use, feed_needs, feed_limits, gd.plant_data):
+        # If no feed sources are left, no proper feed amount could be found
+        # this iteration.
         if len(feed_sources) == 0:
             feed_needs_remain = feed_needs.copy()
             feed_limits_remain = feed_limits.copy()
             feed_use[:] = 0
             break
         nutris = NutrientData(source_data, feed_needs_remain, harvest_stores)
+        # If no feed needs are left, we overfed on feed limits; no proper feed
+        # amount could be found this iteration.
         if nutris.first <= 0:
             feed_needs_remain = feed_needs.copy()
             feed_limits_remain = feed_limits.copy()
             feed_use[:] = 0
             break
+        # Get amount and crop kind to add to feed.
         label, amount = find_la(nutris, feed_needs_remain, harvest_stores)
+        # If we can't consider grass for feed this step, make sure we don't
+        # add too much feed.
         if skip_grass and amount > 100:
             amount /= 10
         skip_grass = False
         grasses = get_grasses(feed_sources)
+        # If we're trying to feed grass, make sure we're not feeding it while
+        # animals would be in the barn.
         if label in grasses:
             max_grass = (sum(feed_use) + amount) * (173 / 365)
             if sum(feed_use[grasses]) + amount > max_grass:
                 amount = under_grass(feed_use, grasses, amount)
                 skip_grass = True
+        # apply amount and crop to feed.
         amount = np.ceil(amount)
         feed_use[label] += amount
         nutri_yields_part = mk_yields_from_feed(label, amount, source_data)
@@ -821,6 +833,7 @@ def find_feed_optim(harvest_stores, feed_needs, feed_limits,
         feed_limits_remain -= nutri_yields_part
         harvest_stores[label] -= amount
         feed_sources = mk_feeds_to_use(feeding_groups_used, harvest_stores)
+        # If animals are in barn remove grasses from feeds to consider.
         if skip_grass:
             feed_sources = rm_grasses(feed_sources)
         source_data = gd.plant_data.loc[feed_sources]
@@ -846,6 +859,7 @@ def feed_animals(harvest_stores, animals_on_farm):
     """
     feed_needs = mk_feed_needs(animals_on_farm)
     feeding_groups_used = determine_feeding_groups(feed_needs, harvest_stores)
+    # While harvest stores cannot meet feed needs reduce herd size.
     while feeding_groups_used == 0:
         al.reduce_animal(animals_on_farm)
         feed_needs = mk_feed_needs(animals_on_farm)
@@ -853,7 +867,8 @@ def feed_animals(harvest_stores, animals_on_farm):
                                                        harvest_stores)
     feed_limits = mk_feed_limits(animals_on_farm)
     feed_use = pd.Series(0.0, index=harvest_stores.index)
-
+    
+    # Try to find feed composition meeting nutrient boundries.
     while sum(feed_use) == 0 and\
             feeding_groups_used <= max(gd.plant_data['feeding_priority']):
         harvest_stores_temp = harvest_stores.copy()
@@ -863,8 +878,12 @@ def feed_animals(harvest_stores, animals_on_farm):
             find_feed_optim(harvest_stores_temp, feed_needs_temp,
                             feed_limits_temp, feeding_groups_used)
         feeding_groups_used += 1
+    
     feeding_groups_used -= 1
-    while sum(feed_use) == 0 and sum(animals_on_farm) > 62:
+    minimal_herd = gd.estate_values['female_ratio'] * 3 +\
+        gd.estate_values['male_ratio'] * 2
+    # If no feed composition can be found reduce herd size to try and solve it.
+    while sum(feed_use) == 0 and sum(animals_on_farm) > minimal_herd:
         al.reduce_animal(animals_on_farm)  # maybe base on overfeeding (feed_limit_remain)?
         feed_needs = mk_feed_needs(animals_on_farm)
         feed_limits = mk_feed_limits(animals_on_farm)

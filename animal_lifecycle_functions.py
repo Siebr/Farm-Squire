@@ -206,8 +206,8 @@ def reduce_animal(animals_on_farm):
             apply_slaughter_yield(label)
             return
     
-    # when more newborn males are present then newborn females, and the herd
-    # won't 
+    # When more newborn males are present then newborn females, and the herd
+    # won't need them all to replenish fertile males: slaugther a newborn male. 
     if animals_on_farm['male_0_year'] >= animals_on_farm['female_0_year']:
         ratio_current = sum(all_males[1:]) / fertile_female_amount
         ratio_want = gd.estate_values['male_ratio'] /\

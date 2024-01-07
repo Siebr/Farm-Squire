@@ -42,6 +42,7 @@ def assign_bedding(harvest_stores, animals_on_farm):
         bedding_needed -= amount
         if bedding_needed <= 0:
             break
+    # If not enough bedding available, reduce herd and try again.
     if bedding_needed > 0:
         al.reduce_animal(animals_on_farm)
         bedding_used = assign_bedding(harvest_stores, animals_on_farm)
@@ -154,6 +155,20 @@ def report_and_wipe_fm():
 
 
 def select_cash_crops(harvest_stores):
+    """
+    Select all crops that are to be sold out of harvest stores.
+
+    Parameters
+    ----------
+    harvest_stores : pd.Series
+        Contains all harvested crops and their stored amounts.
+
+    Returns
+    -------
+    cash_crops : pd.Series
+        Contains all crops designated to be sold.
+
+    """
     cash_crops = harvest_stores.where(gd.plant_data['sale_use'] == True)
     cash_crops = cash_crops.where(cash_crops > 0)
     cash_crops.dropna(inplace=True)
@@ -161,6 +176,20 @@ def select_cash_crops(harvest_stores):
 
 
 def apply_cash_crop_yield(cash_crops):
+    """
+    Apply sale results of all cash crops.
+
+    Parameters
+    ----------
+    cash_crops : pd.Series
+        Contains all crops designated to be sold.
+
+    Returns
+    -------
+    None;
+    All sale results get added to global variables.
+
+    """
     for label, amount in cash_crops.items():
         revenue = gd.plant_data['sale_value'].loc[label] * amount
         Kcal = gd.plant_data['food_energy_content'].loc[label] * amount
@@ -173,16 +202,54 @@ def apply_cash_crop_yield(cash_crops):
 
 
 def apply_crop_balance():
+    """
+    Apply flat yearly operation costs/profits of crops.
+
+    Returns
+    -------
+    None;
+    Operation costs/profits get added to golbal variables.
+    
+    """
     gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] +=\
         gd.crop_balance
 
     
 def apply_digestion_methane_emission(animals_on_farm):
+    """
+    Apply methan emissions produced by digestion of herd.
+
+    Parameters
+    ----------
+    animals_on_farm : pd.Series
+        Keeps track of which animals are on the farm and in what amount they
+        are present.
+
+    Returns
+    -------
+    None;
+    Emissions get added to global variables.
+
+    """
     gd.results['digestion_methane_emissions'].loc[f'year_{gd.year}'] =\
         sum(animals_on_farm * gd.animal_data['digestion_methane_emission'])
 
 
 def apply_manure(manure):
+    """
+    Apply nitrogen and phosphorus yield from manure.
+
+    Parameters
+    ----------
+    manure : pd.Series
+        Kg amount of manure prduced for each animal type on farm.
+
+    Returns
+    -------
+    None;
+    Nitrogen and phosphorus yields get added to golbal variables.
+    
+    """
     for label, amount in manure.items():
         nitrogen = gd.animal_data['manure_nitrogen_content'].loc[label] *\
             amount * 0.63
