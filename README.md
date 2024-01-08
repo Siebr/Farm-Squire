@@ -34,7 +34,23 @@ Say you have a piece of farmland that for some years serves the purpose for crop
 E.G.: If you have 100 Ha of farmland that would rotate between three years of cropping, and two years of animal pastures. Then for each year of operation you'd virtually have 60 Ha of cropping land, and 40 Ha of animal pastures. These statistics should be supplied to the estate sheet as such.
 
 #### on animal ratios:
-The way the script is implemented the animal ratios (newborn, female, and male) only act as a desired ratio. This means that the actual numbers will vary but try to be as close as the ratio as possible. E.G.: in the example scenario for each fertile male the amount of fertile females would vary between 10 and 30 with a medean of 24.
+The way the script is implemented the animal ratios (newborn, female, and male) only act as a desired ratio. This means that the actual numbers will vary but try to be as close as the ratio as possible. E.G.: in the example scenario for each fertile male the amount of fertile females would vary between 10 and 30 with a median of 24.
 
 ### the crops sheet:
-In addition to the first two golden columns the estate sheet had the crops sheet now ...
+In addition to the first two golden columns the estate sheet had, the crops sheet also has the first row green. This row contains all the different kinds of crops your farm might cultivate. You can freely add and remove crops in this sheet to fit your farm's opperations.
+
+For each crop you indicate how much of it you'd like to cultivate in both `grassland_ratio` and `cropping_ratio` respectively. This can be done in total hectare amount, or percentage, or any onther number that would indicate the ratio in which amount each crop is cultivated. These ratios will be applied to the grassland and cropping land amounts you indicated in the estate sheet.
+
+The crop yield for kilogram per hectare you can specify in the `yield_DM` row. We recommand using 'dry matter' wheight for all relevant variables, however you could use soley 'fresh matter' wheights or maybe even mix and match as long as you are able to keep all values consisten between all relevant variables.
+
+In row five through nine you get to specify the different purposes your harvested crops can fulfill. The way the script works is that it will first assign valid crops to bedding, then to animal feed, followed by bioprocessor, mulch, and finally sales. A crop can thus fulfill multiple purposes and will be assigned in this order as needed on the farm. E.G.: If the harvest contains 100 Kg `oat feed grain` and 30 Kg would be needed to feed the animals, then 30 Kg will be fed and the remaining 70 Kg will be sold.
+
+In the remaining rows you get to specify more direct statistics of all farm crops.
+
+#### on compound crop products:
+In real life it is normal that that one crops yields mutiple different kinds of products E.G.: grains and straws. This poses a problem to the script, since to the script one single crop is synonymous to one single product. This means you'd have to manually divide all different crops products a crop would yield over the area that crop would occupy. 
+
+We will give an example on how this is done: Say you're growing wheat on your farm and one hectare of farmland for wheat yields 1200 Kg of grain and 1800 Kg of straw. Then you can say that one hectare of wheat farland produces 1200 + 1800 = 3000 Kg of products.
+Within that hectare 1200 / 3000 = 0.4 Ha would be responsible for growing grain and likewise 1800 / 3000 = 0.6 Ha would be responsible for growing straw. This 0.4 : 0.6 is the ratio in which you will have to assing grain and hay to the amount of Ha wheat occupies. The yield of each seperate product will be the same as the yield total of of wheat which is 3000 Kg in this example. So if you're growing 200 Ha of wheat on your farm you'd have to note this as if you're growing 200 * 0.4 = 80 Ha of wheat grain on your farm, with a yield of 3000 Kg per hectare, and likewise you'd be growing 200 * 0.6 = 120 Ha of wheat straw with a yield of 3000 Kg per hectare.
+
+### the animal sheet:
