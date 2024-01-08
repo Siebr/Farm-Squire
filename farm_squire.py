@@ -97,7 +97,10 @@ if __name__ == '__main__':
         gd.herd_results = pd.concat([gd.herd_results,
                                      animals_on_farm.to_frame().T], copy=False)
         print(f'years passed: {gd.year}')
-        print(f'herd size is: {sum(animals_on_farm)}\n')
+        print(f'herd size is: {sum(animals_on_farm)}')
+        # females = sum(animals_on_farm[gd.female_labs[:-1]])
+        # males = sum(animals_on_farm[gd.male_labs[:-1]])
+        # print(f'female per male is: {females/males}\n')
     
     print(f'final herd is:\n{animals_on_farm}')
     
