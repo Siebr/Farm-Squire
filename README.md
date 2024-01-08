@@ -1,6 +1,9 @@
 # Farm Squire:
 Farm squire is a python script that models nutrient flow and yearly operations on farms. This first release was made with beef farms in mind but we strife to have any farm be able to be simulated.
 
+## the concept:
+Farm squire is a model made from the concept of flux modelling. One would specify certain input substances that are provided into the system of a farm those inputs are use to produce certain intermeadiate substances. Inputs would along with those intermeadiates produce certain product substances. E.G.: With fertilizer and maybe seeds one would produce crops, those crops would be fed to animals, which in turn produces more animals, those animals could be slaughtered for meat, that meat would be sold to generate an income. Like this an entire network of inputs, intermeadiates and outputs can be stipulated. Farm Squire would model the progression of this network on a yearly bases. The network model for farm squire has initially been made for meat farms but might be able to be applied to other farms as well. Farm squire considers two core networks that intersect at times. The first is the progression and production of crops within a year as depicted by the next picture: ![network model of the crop cycle](/cropcycle.png) The second is the progression and aging of a population of farm animals as depicted by this picture: ![network model of the animal cycle](animalcycle.png)
+
 # setup:
 We recommend installing [anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) in order to run this script. Anaconda contains the latest version of pyhton, and all python packages used by farm squire are contained in the base install of anaconda.
 
