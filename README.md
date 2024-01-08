@@ -67,3 +67,7 @@ The script only assigns fertile males and fertile females to the male / female r
 
 ## the biodigestor sheet:
 Again in the biodigestor sheet the first two columns are golden and should not be altered. On top of this the first three entries in the first row are also hard coded. chicken and horse manure rever to the same named entries as in the estate sheet. deep litter is and animal waste product as specified in the animal sheet. Beyond this all the green entries in this row should be exact matches as the first row entries present in the crops sheet. The biodigestor sheet is quite simple as that it only indicates which product certain types of matter would yield if they were put into the biodigestor.
+
+# donations:
+If this script was helpful to you and it helped you acquire some from of income then please consider making a [donation](https://donate.stripe.com/3cscP52X0bp7gUw8ww) to help further our future endavours.
+If you love this script and would like to sponsor further development, or would like us to develop similar software for you. Then please contact us at Siebrant.Business@gmail.com to discuss offering us a commission.
