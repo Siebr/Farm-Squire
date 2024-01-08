@@ -10,7 +10,7 @@ Back in the day it was quite common for farmers to have an farm hand that would 
 # setup:
 We recommend installing [anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) in order to run this script. Anaconda contains the latest version of pyhton, and all python packages used by farm squire are contained in the base install of anaconda.
 
-In order to download the files of this repository to your local device we recommend using [github desktop](https://desktop.github.com/).
+In order to download the files of this repository to your local device we recommend using [github desktop](https://desktop.github.com/). Alternatively one can now also download the zip file with this repository's content in the releases section on the right side of this github page.
 
 # running farm_squire:
 Once anaconda is installed, and you cloned this repository to your device you can open the windows powershell from you anaconda navigator. 
