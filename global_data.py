@@ -12,18 +12,18 @@ import pandas as pd
 print('startup, please wait...')
 # read input file, defaults to example if no other file is given.
 if len(argv) > 1:
-    filename = argv[1]
+    FILENAME = argv[1]
 else:
-    filename = 'input_example.xlsx'
-input_file = pd.ExcelFile(filename)
+    FILENAME = 'input_example.xlsx'
+input_file = pd.ExcelFile(FILENAME)
 
 estate_data = pd.read_excel(input_file, sheet_name='estate', index_col=0)
 plant_data = pd.read_excel(input_file, sheet_name='crops', index_col=0)
 animal_data = pd.read_excel(input_file, sheet_name='animal', index_col=0)
-biodigestor_data = pd.read_excel(input_file, sheet_name='biodigestor',\
+biodigestor_data = pd.read_excel(input_file, sheet_name='biodigestor',
                                  index_col=0)
 input_file.close()
-    
+
 estate_data_ori = estate_data.copy()
 plant_data_ori = plant_data.copy()
 animal_data_ori = animal_data.copy()
@@ -44,9 +44,9 @@ type_dict = {'feeding_priority': 'int',
              'sale_use': 'bool'}
 plant_data = plant_data.astype(type_dict)
 
-unit_change = 'feed_protein_content'
-plant_data[unit_change] = plant_data[unit_change] / 1000
-plant_units[unit_change] = 'Kg/Kg'
+UNIT_CHANGE = 'feed_protein_content'
+plant_data[UNIT_CHANGE] = plant_data[UNIT_CHANGE] / 1000
+plant_units[UNIT_CHANGE] = 'Kg/Kg'
 
 animal_units = animal_data.pop('unit_of_measurement')
 animal_data = animal_data.T
@@ -105,7 +105,7 @@ crop_balance -= fuel_cost
 # check brewery
 brewery = False
 if harvest_ha['Barley'] + harvest_ha['Barley_straw'] >=\
-    estate_values['BSG/BSY_from_barley_only_at']:
+        estate_values['BSG/BSY_from_barley_only_at']:
     brewery = True
 if brewery:
     harvest_yield['BS_grain'] = int(np.floor(estate_values['import_BSG_DM']))
@@ -118,17 +118,17 @@ for label, amount in harvest_yield.items():
     p_use += plant_data['P_content'].loc[label] * amount
     n_use += plant_data['N_content'].loc[label] * amount
 
-# make intermediate pd.Series used for tracking nitrogen and phosphorus changes    
+# make intermediate pd.Series used for tracking nitrogen and phosphorus changes
 fertile_molecules = pd.Series(0.0, index=['phosphorus', 'nitrogen'])
 
 # split initial herd from data
 animals_on_farm = animal_data.pop('initial_animal_count')
 
 # divide animal types in male, castrated and female
-categories = ' '.join(animals_on_farm.index)
-castrated_labs = re.findall(r'(?: |^)(male_castrated_\d+_year)', categories)
-male_labs = re.findall(r'(?: |^)(male_\d+_year)', categories)
-female_labs = re.findall(r'(?: |^)(female_\d+_year)', categories)
+CATEGORIES = ' '.join(animals_on_farm.index)
+castrated_labs = re.findall(r'(?: |^)(male_castrated_\d+_year)', CATEGORIES)
+male_labs = re.findall(r'(?: |^)(male_\d+_year)', CATEGORIES)
+female_labs = re.findall(r'(?: |^)(female_\d+_year)', CATEGORIES)
 def sort_by_num(entry):
     number = re.search(r'\d+', entry)
     return int(number.group())
@@ -165,7 +165,6 @@ print('startup complete\n')
 
 if __name__ == '__main__':
     print('This is only a supplementary script to "farm_squire.py".')
-    print('This script takes the input files supplied by the command line'+
+    print('This script takes the input files supplied by the command line' +
           ' and reads those in.')
-    print(f'The current files used are: {filename}')
-
+    print(f'The current files used are: {FILENAME}')

@@ -792,8 +792,8 @@ def find_feed_optim(harvest_stores, feed_needs, feed_limits,
     feed_needs_remain = feed_needs.copy()
     feed_limits_remain = feed_limits.copy()
     skip_grass = False
-    
-    # As long as feed does not match nutrient requirement add extra feed. 
+
+    # As long as feed does not match nutrient requirement add extra feed.
     while not check_margin(feed_use, feed_needs, feed_limits, gd.plant_data):
         # If no feed sources are left, no proper feed amount could be found
         # this iteration.
@@ -867,7 +867,7 @@ def feed_animals(harvest_stores, animals_on_farm):
                                                        harvest_stores)
     feed_limits = mk_feed_limits(animals_on_farm)
     feed_use = pd.Series(0.0, index=harvest_stores.index)
-    
+
     # Try to find feed composition meeting nutrient boundries.
     while sum(feed_use) == 0 and\
             feeding_groups_used <= max(gd.plant_data['feeding_priority']):
@@ -878,13 +878,14 @@ def feed_animals(harvest_stores, animals_on_farm):
             find_feed_optim(harvest_stores_temp, feed_needs_temp,
                             feed_limits_temp, feeding_groups_used)
         feeding_groups_used += 1
-    
+
     feeding_groups_used -= 1
     minimal_herd = gd.estate_values['female_ratio'] * 3 +\
         gd.estate_values['male_ratio'] * 2
     # If no feed composition can be found reduce herd size to try and solve it.
     while sum(feed_use) == 0 and sum(animals_on_farm) > minimal_herd:
-        al.reduce_animal(animals_on_farm)  # maybe base on overfeeding (feed_limit_remain)?
+        al.reduce_animal(animals_on_farm)
+        # maybe base reduce animal on overfeeding (feed_limit_remain)?
         feed_needs = mk_feed_needs(animals_on_farm)
         feed_limits = mk_feed_limits(animals_on_farm)
         harvest_stores_temp = harvest_stores.copy()
