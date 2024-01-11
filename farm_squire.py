@@ -8,14 +8,14 @@ Farm Squire is a script inspired by nutrient flux modelling.
 It is made to model Product yields that are common for beef farms.
 All the preset data relates to finnish beef farms.
 """
+import os
+import datetime as dt
 import global_data as gd
 import pandas as pd
 import feed_functions as fd
 import animal_lifecycle_functions as al
 import utility_functions as ul
 import bioprocessor_functions as bi
-import datetime as dt
-import os
 
 # Core loop implemented as 'do while' each run accounts for one year of
 # operations.
@@ -56,7 +56,6 @@ if __name__ == '__main__':
     print(f'years passed: {gd.year}')
     print(f'herd size is: {sum(animals_on_farm)}\n')
 
-    
     while gd.year < gd.estate_values['runtime']:
         gd.year += 1
         new_row = pd.Series(0.0, index=gd.results.columns,
@@ -103,9 +102,9 @@ if __name__ == '__main__':
         # females = sum(animals_on_farm[gd.female_labs[:-1]])
         # males = sum(animals_on_farm[gd.male_labs[:-1]])
         # print(f'female per male is: {females/males}\n')
-    
+
     print(f'final herd is:\n{animals_on_farm}\n')
-    
+
     # At the end of the run output relevant results and inputs used.
     timestamp = dt.datetime.now()
     timestamp = timestamp.strftime('%Y-%m-%d_%H.%M.%S')

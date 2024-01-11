@@ -27,7 +27,7 @@ def assign_bedding(harvest_stores, animals_on_farm):
         used thusly.
 
     """
-    bedding_crops = harvest_stores.where(gd.plant_data['bedding_use'] == True)
+    bedding_crops = harvest_stores.where(gd.plant_data['bedding_use'] is True)
     bedding_crops = bedding_crops.where(bedding_crops > 0)
     bedding_crops.dropna(inplace=True)
     bedding_crops.sort_values(ascending=False, inplace=True)
@@ -35,8 +35,7 @@ def assign_bedding(harvest_stores, animals_on_farm):
     bedding_needed = sum(animals_on_farm) * bedding_per_head
     bedding_used = pd.Series(0.0, index=bedding_crops.index)
     for label, amount in bedding_crops.items():
-        if amount > bedding_needed:
-            amount = bedding_needed
+        amount = min(amount, bedding_needed)
         bedding_used[label] += amount
         bedding_crops[label] -= amount
         bedding_needed -= amount
@@ -63,7 +62,7 @@ def apply_stocking_limits(animals_on_farm):
     -------
     None;
     Passed variable is altered in place.
-    
+
     """
     herd_size = sum(animals_on_farm * gd.animal_data['livestock_units'])
     can_support = gd.livestock_units_max
@@ -85,7 +84,7 @@ def fixate_fm(harvest_stores):
     -------
     None;
     Extratedted fertile molecules get added to global variables.
-    
+
     """
     phosphorus = sum(harvest_stores * gd.plant_data['P_fixation'])
     nitrogen = sum(harvest_stores * gd.plant_data['N_fixation'])
@@ -107,7 +106,7 @@ def extract_fm(biopro_use):
     -------
     None;
     Extratedted fertile molecules get added to global variables.
-    
+
     """
     for label, amount in biopro_use.items():
         if label in ['chicken_manure', 'horse_manure', 'deep_litter']:
@@ -130,12 +129,12 @@ def fertilize_fm():
     -------
     None;
     Global data gets altered in place.
-    
+
     """
     gd.fertile_molecules['phosphorus'] -= gd.p_use
     gd.fertile_molecules['nitrogen'] -= gd.n_use
-    
-    
+
+
 def report_and_wipe_fm():
     """
     Set nitrogen & phosphorus balance in yearly report, and wipe for new year.
@@ -144,7 +143,7 @@ def report_and_wipe_fm():
     -------
     None;
     Global data gets altered in place
-    
+
     """
     gd.results['phosphorus_balance'].loc[f'year_{gd.year}'] =\
         gd.fertile_molecules['phosphorus']
@@ -169,7 +168,7 @@ def select_cash_crops(harvest_stores):
         Contains all crops designated to be sold.
 
     """
-    cash_crops = harvest_stores.where(gd.plant_data['sale_use'] == True)
+    cash_crops = harvest_stores.where(gd.plant_data['sale_use'] is True)
     cash_crops = cash_crops.where(cash_crops > 0)
     cash_crops.dropna(inplace=True)
     return cash_crops
@@ -209,12 +208,12 @@ def apply_crop_balance():
     -------
     None;
     Operation costs/profits get added to golbal variables.
-    
+
     """
     gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] +=\
         gd.crop_balance
 
-    
+
 def apply_digestion_methane_emission(animals_on_farm):
     """
     Apply methan emissions produced by digestion of herd.
@@ -248,7 +247,7 @@ def apply_manure(manure):
     -------
     None;
     Nitrogen and phosphorus yields get added to golbal variables.
-    
+
     """
     nitrogen = sum(gd.animal_data['manure_nitrogen_content'] * manure) * 0.63
     phosphorus = sum(gd.animal_data['manure_phosphorus_content'] * manure)
@@ -272,6 +271,7 @@ def select_mulch(harvest_stores, biomatter_available, biomatter_use):
     biomatter_use : pd.Series
         Contains matter types suitable for bioprocessor and their Kg amount
         that will be used by the bioprocessor.
+
     Returns
     -------
     mulch : pd.Series
@@ -279,7 +279,7 @@ def select_mulch(harvest_stores, biomatter_available, biomatter_use):
         they will be applied.
 
     """
-    mulch = harvest_stores.where(gd.plant_data['mulch_use'] == True)
+    mulch = harvest_stores.where(gd.plant_data['mulch_use'] is True)
     mulch = mulch.where(mulch > 0)
     mulch.dropna(inplace=True)
     deep_litter = biomatter_available['deep_litter'] -\
@@ -317,7 +317,7 @@ def apply_mulch(mulch):
             phosphorus = gd.plant_data['P_content'].loc[label] * amount
             gd.fertile_molecules['nitrogen'] += nitrogen
             gd.fertile_molecules['phosphorus'] += phosphorus
-            
+
 
 def apply_animal_balance(animals_on_farm):
     """
@@ -359,7 +359,7 @@ def apply_electricity_use():
     """
     gd.results['electricity_balance'].loc[f'year_{gd.year}'] -=\
         gd.estate_values['general_electricity_consumption']
-    if gd.brewery == True:
+    if gd.brewery is True:
         gd.results['electricity_balance'].loc[f'year_{gd.year}'] -=\
             gd.estate_values['brewery_electricity_requirement']
 
