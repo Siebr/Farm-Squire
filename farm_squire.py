@@ -15,10 +15,12 @@ import animal_lifecycle_functions as al
 import utility_functions as ul
 import bioprocessor_functions as bi
 import datetime as dt
+import os
 
 # Core loop implemented as 'do while' each run accounts for one year of
 # operations.
 if __name__ == '__main__':
+    print('simulating...')
     harvest_stores = gd.harvest_yield.copy()
     ul.apply_crop_balance()
     animals_on_farm = gd.animals_on_farm
@@ -97,12 +99,12 @@ if __name__ == '__main__':
         gd.herd_results = pd.concat([gd.herd_results,
                                      animals_on_farm.to_frame().T], copy=False)
         print(f'years passed: {gd.year}')
-        print(f'herd size is: {sum(animals_on_farm)}')
+        print(f'herd size is: {sum(animals_on_farm)}\n')
         # females = sum(animals_on_farm[gd.female_labs[:-1]])
         # males = sum(animals_on_farm[gd.male_labs[:-1]])
         # print(f'female per male is: {females/males}\n')
     
-    print(f'final herd is:\n{animals_on_farm}')
+    print(f'final herd is:\n{animals_on_farm}\n')
     
     # At the end of the run output relevant results and inputs used.
     timestamp = dt.datetime.now()
@@ -115,4 +117,5 @@ if __name__ == '__main__':
         gd.plant_data_ori.to_excel(writer, sheet_name='crops')
         gd.animal_data_ori.to_excel(writer, sheet_name='animal')
         gd.biodigestor_data_ori.to_excel(writer, sheet_name='biodigestor')
-    pass
+    print('simulation done, check output file')
+    os.system(f'start EXCEL.EXE {output_name}')
