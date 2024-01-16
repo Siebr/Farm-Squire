@@ -5,9 +5,9 @@ Supplementary script for feeding animals
 """
 import re
 import pandas as pd
+import numpy as np
 import global_data as gd
 import animal_lifecycle_functions as al
-import numpy as np
 
 
 class NutrientData:
@@ -367,7 +367,7 @@ def find_kg_need_for_prot(p_lab, p_yld, source_data, feed_needs_remain,
     """
     prot_yield = 0.0
     kg_needed = 0.0
-    fail = False # might want to figure out better fail safe later
+    fail = False  # might want to figure out better fail safe later
     while prot_yield < feed_needs_remain['protein']:
         prot_yield += harvest_stores[p_lab] * p_yld
         kg_needed += harvest_stores[p_lab]
@@ -411,7 +411,7 @@ def find_kg_need_for_energy(e_lab, e_yld, source_data, feed_needs_remain,
     """
     energy_yield = 0.0
     kg_needed = 0.0
-    fail = False # might want to figure out better fail safe later
+    fail = False  # might want to figure out better fail safe later
     while energy_yield < feed_needs_remain['energy']:
         energy_yield += harvest_stores[e_lab] * e_yld
         kg_needed += harvest_stores[e_lab]
