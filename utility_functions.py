@@ -380,21 +380,120 @@ def apply_digestate():
 
 
 def report_bedding(bedding):
+    """
+    Report bedding use.
+
+    Parameters
+    ----------
+    bedding : pd.Series
+        Contains all crops suitable for bedding, and in which amount they are
+        used thusly.
+
+    Returns
+    -------
+    None;
+    Results get added to global variables.
+
+    """
     bedding.name = f'year {gd.year}'
     gd.bedding_used.append(bedding.copy())
 
+
 def report_feed(feed_use):
+    """
+    Report feed.
+
+    Parameters
+    ----------
+    feed_use : pd.Series
+        Contains the kg amount determined for feed for each crop.
+
+    Returns
+    -------
+    None;
+    Results get added to global variables.
+
+    """
     feed_use.name = f'year {gd.year}'
     gd.feed_used.append(feed_use.copy())
-    
+
+
 def report_sold(cash_crops):
+    """
+    Report crop sales.
+
+    Parameters
+    ----------
+    cash_crops : pd.Series
+        Harvested crops that are being sold.
+
+    Returns
+    -------
+    None;
+    Results get added to global variables.
+
+    """
     cash_crops.name = f'year {gd.year}'
     gd.crops_sold.append(cash_crops.copy())
 
+
 def report_digestor(biomatter_use):
+    """
+    Report crops send to biodigestor.
+
+    Parameters
+    ----------
+    biomatter_use : pd.Series
+        Contains matter types suitable for bioprocessor and their Kg amount
+        that will be used by the bioprocessor.
+
+    Returns
+    -------
+    None;
+    Results get added to global variables.
+
+    """
     biomatter_use.name = f'year {gd.year}'
     gd.digestor_used.append(biomatter_use.copy())
 
+
 def report_mulch(mulch):
+    """
+    Report matter used as mulch.
+
+    Parameters
+    ----------
+    mulch : pd.Series
+        Contains matter types suitable for mulching and the Kg amounts in which
+        they will be applied.
+
+    Returns
+    -------
+    None;
+    Results get added to global variables.
+
+    """
     mulch.name = f'year {gd.year}'
     gd.mulch_used.append(mulch.copy())
+
+
+def drop_empty_columns(dataframe):
+    """
+    Drop columns that are empty from dataframe.
+
+    Parameters
+    ----------
+    dataframe : pd.Dataframe
+        Any dataframe.
+
+    Returns
+    -------
+    None;
+    Edit is done inplace.
+
+    """
+    empty_columns = []
+    for column in dataframe.columns:
+        if sum(dataframe[column]) == 0:
+            empty_columns.append(column)
+    dataframe.drop(empty_columns, axis=1, inplace=True)

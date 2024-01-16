@@ -110,10 +110,11 @@ if __name__ == '__main__':
         # print(f'female per male is: {females/males}\n')
 
     print(f'final herd is:\n{animals_on_farm}\n')
-    
+
     gd.herd_results = pd.DataFrame(gd.herd_results)
     gd.bedding_used = pd.DataFrame(gd.bedding_used)
     gd.feed_used = pd.DataFrame(gd.feed_used)
+    ul.drop_empty_columns(gd.feed_used)
     gd.crops_sold = pd.DataFrame(gd.crops_sold)
     gd.digestor_used = pd.DataFrame(gd.digestor_used)
     gd.digestor_used.fillna(0, inplace=True)
