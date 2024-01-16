@@ -381,5 +381,20 @@ def apply_digestate():
 
 def report_bedding(bedding):
     bedding.name = f'year {gd.year}'
-    gd.bedding_used = pd.concat([gd.bedding_used, bedding.to_frame().T],
-                                copy=False)
+    gd.bedding_used.append(bedding.copy())
+
+def report_feed(feed_use):
+    feed_use.name = f'year {gd.year}'
+    gd.feed_used.append(feed_use.copy())
+    
+def report_sold(cash_crops):
+    cash_crops.name = f'year {gd.year}'
+    gd.crops_sold.append(cash_crops.copy())
+
+def report_digestor(biomatter_use):
+    biomatter_use.name = f'year {gd.year}'
+    gd.digestor_used.append(biomatter_use.copy())
+
+def report_mulch(mulch):
+    mulch.name = f'year {gd.year}'
+    gd.mulch_used.append(mulch.copy())

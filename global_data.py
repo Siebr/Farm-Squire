@@ -154,17 +154,21 @@ result_init = {'revenue_balance_animal': '€', 'revenue_balance_crops': '€',
                'digestion_methane_emissions': 'g_CH4',
                'manure_methane_emissions': 'g_CH4'}
 results = pd.DataFrame(result_init, index=['unit'])
-new_row = pd.Series(0.0, index=results.columns, name=f'year_{year}')
-results = pd.concat([results, new_row.to_frame().T], copy=False)
+result_rows = []
+for yr in range(1, int(estate_values['runtime'])+1, 1):
+    new_row = pd.Series(0.0, index=results.columns, name=f'year_{yr}')
+    result_rows.append(new_row.copy())
+results_empty = pd.DataFrame(result_rows)
+results = pd.concat([results, results_empty], axis=0, copy=False)
 
-animals_on_farm.rename('year_1', inplace=True)
-herd_results = animals_on_farm.copy().to_frame().T
+animals_on_farm.name = 'year_1'
+herd_results = [animals_on_farm.copy()]
 
-crops_sold = pd.DataFrame()
-feed_used = pd.DataFrame()
-digestor_used = pd.DataFrame()
-mulch_used = pd.DataFrame()
-bedding_used = pd.DataFrame()
+crops_sold = []
+feed_used = []
+digestor_used = []
+mulch_used = []
+bedding_used = []
 
 print('startup complete\n')
 
