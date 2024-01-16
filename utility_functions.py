@@ -27,7 +27,7 @@ def assign_bedding(harvest_stores, animals_on_farm):
         used thusly.
 
     """
-    bedding_crops = harvest_stores.where(gd.plant_data['bedding_use'] is True)
+    bedding_crops = harvest_stores.where(gd.plant_data['bedding_use'] == True)
     bedding_crops = bedding_crops.where(bedding_crops > 0)
     bedding_crops.dropna(inplace=True)
     bedding_crops.sort_values(ascending=False, inplace=True)
@@ -168,7 +168,7 @@ def select_cash_crops(harvest_stores):
         Contains all crops designated to be sold.
 
     """
-    cash_crops = harvest_stores.where(gd.plant_data['sale_use'] is True)
+    cash_crops = harvest_stores.where(gd.plant_data['sale_use'] == True)
     cash_crops = cash_crops.where(cash_crops > 0)
     cash_crops.dropna(inplace=True)
     return cash_crops
@@ -279,7 +279,7 @@ def select_mulch(harvest_stores, biomatter_available, biomatter_use):
         they will be applied.
 
     """
-    mulch = harvest_stores.where(gd.plant_data['mulch_use'] is True)
+    mulch = harvest_stores.where(gd.plant_data['mulch_use'] == True)
     mulch = mulch.where(mulch > 0)
     mulch.dropna(inplace=True)
     deep_litter = biomatter_available['deep_litter'] -\
@@ -377,3 +377,9 @@ def apply_digestate():
     digestate = gd.results['digestate_produced'].loc[f'year_{gd.year}']
     cost = gd.estate_values['digestate_application_cost'] * digestate
     gd.results['revenue_balance_crops'].loc[f'year_{gd.year}'] -= cost
+
+
+def report_bedding(bedding):
+    bedding.name = f'year {gd.year}'
+    gd.bedding_used = pd.concat([gd.bedding_used, bedding.to_frame().T],
+                                copy=False)

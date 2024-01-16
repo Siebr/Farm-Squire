@@ -10,8 +10,8 @@ All the preset data relates to finnish beef farms.
 """
 import os
 import datetime as dt
-import global_data as gd
 import pandas as pd
+import global_data as gd
 import feed_functions as fd
 import animal_lifecycle_functions as al
 import utility_functions as ul
@@ -26,6 +26,7 @@ if __name__ == '__main__':
     animals_on_farm = gd.animals_on_farm
     ul.fixate_fm(harvest_stores)
     bedding = ul.assign_bedding(harvest_stores, animals_on_farm)
+    ul.report_bedding(bedding)
     harvest_stores = harvest_stores.sub(bedding, fill_value=0.0)
     harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
     # reclaim bedding if herd gets reduced during feeding?
@@ -67,6 +68,7 @@ if __name__ == '__main__':
         ul.apply_crop_balance()
         ul.fixate_fm(harvest_stores)
         bedding = ul.assign_bedding(harvest_stores, animals_on_farm)
+        ul.report_bedding(bedding)
         harvest_stores = harvest_stores.sub(bedding, fill_value=0.0)
         harvest_stores = harvest_stores.reindex_like(gd.harvest_yield)
         feed = fd.feed_animals(harvest_stores, animals_on_farm)

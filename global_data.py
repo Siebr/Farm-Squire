@@ -160,6 +160,12 @@ results = pd.concat([results, new_row.to_frame().T], copy=False)
 animals_on_farm.rename('year_1', inplace=True)
 herd_results = animals_on_farm.copy().to_frame().T
 
+crops_sold = pd.DataFrame()
+feed_used = pd.DataFrame()
+digestor_used = pd.DataFrame()
+mulch_used = pd.DataFrame()
+bedding_used = pd.DataFrame()
+
 print('startup complete\n')
 
 

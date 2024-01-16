@@ -22,8 +22,8 @@ def biopro_no_mulch(harvest_stores):
         Contains crops suitable for bioprocessor and their stored Kg amount.
 
     """
-    bio_crops = harvest_stores.where(gd.plant_data['bioprocessor_use'] is True)
-    bio_crops = bio_crops.where(gd.plant_data['mulch_use'] is False)
+    bio_crops = harvest_stores.where(gd.plant_data['bioprocessor_use'] == True)
+    bio_crops = bio_crops.where(gd.plant_data['mulch_use'] == False)
     bio_crops = bio_crops.where(bio_crops > 0)
     bio_crops.dropna(inplace=True)
     return bio_crops
@@ -44,8 +44,8 @@ def biopro_with_mulch(harvest_stores):
         Contains crops suitable for bioprocessor and their stored Kg amount.
 
     """
-    bio_crops = harvest_stores.where(gd.plant_data['bioprocessor_use'] is True)
-    bio_crops = bio_crops.where(gd.plant_data['mulch_use'] is True)
+    bio_crops = harvest_stores.where(gd.plant_data['bioprocessor_use'] == True)
+    bio_crops = bio_crops.where(gd.plant_data['mulch_use'] == True)
     bio_crops = bio_crops.where(bio_crops > 0)
     bio_crops.dropna(inplace=True)
     return bio_crops

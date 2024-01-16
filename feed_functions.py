@@ -5,9 +5,9 @@ Supplementary script for feeding animals
 """
 import re
 import pandas as pd
+import numpy as np
 import global_data as gd
 import animal_lifecycle_functions as al
-import numpy as np
 
 
 class NutrientData:
