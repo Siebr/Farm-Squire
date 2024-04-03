@@ -17,7 +17,7 @@ Once anaconda is installed, and you cloned this repository to your device you ca
 
 Inside the powershell you can [navigate](https://learn.microsoft.com/en-us/powershell/scripting/samples/managing-current-location?view=powershell-7.4) to the directory the repository is cloned. This is for example done with the command: `cd D:/some_folder/Farm_Squire`
 
-Once in the right directory you can run the script by entering the command `python farm_squire input_file.xlsx` different excel documents can be used as input by changing the name of the input file. E.G. you can run the example file by typing the command `python3 farm_squire.py input_example.xlsx`. running the script will make excel file containing all relevant output data. The name format of the output file is `squire_results_date_time.xlsx`
+Once in the right directory you can run the script by entering the command `python3 farm_squire.py input_file.xlsx` different excel documents can be used as input by changing the name of the input file. E.G. you can run the example file by typing the command `python3 farm_squire.py input_example.xlsx`. running the script will make excel file containing all relevant output data. The name format of the output file is `squire_results_date_time.xlsx`
 
 # Making Your Own Input File:
 You should use the provided `input_example.xlsx` file as a template for your own input file.
